@@ -20,40 +20,44 @@ const Sidebar = () => {
         backgroundColor: '#fd7e14',
         top: 0,
         left: 0,
-        zIndex: 1000,
+        zIndex: 1,
       }}
     >
+
+      {/* Logo */}
       <h4 className="mb-4 fw-bold text-center">Restaurant Inventory</h4>
 
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
           <NavLink className="nav-link text-white" to="/">
-            <i className="bi bi-house me-2"></i> Home
+            <i className="bi bi-house me-1"></i> Home
           </NavLink>
         </li>
         <li>
           <NavLink className="nav-link text-white" to="/dashboard">
-            <i className="bi bi-speedometer2 me-2"></i> Dashboard
+            <i className="bi bi-speedometer2 me-1"></i> Dashboard
           </NavLink>
         </li>
         <li>
           <NavLink className="nav-link text-white" to="/inventory_list">
-            <i className="bi bi-box-seam me-2"></i> Inventory List
+            <i className="bi bi-box-seam me-1"></i> Inventory List
           </NavLink>
         </li>
         <li>
           <NavLink className="nav-link text-white" to="/orders">
-            <i className="bi bi-bag-check me-2"></i> Orders
+            <i className="bi bi-bag-check me-1"></i> Orders
           </NavLink>
         </li>
         <li>
           <NavLink className="nav-link text-white" to="/suppliers">
-            <i className="bi bi-truck me-2"></i> Suppliers
+            <i className="bi bi-truck me-1"></i> Suppliers
           </NavLink>
         </li>
       </ul>
 
       <hr />
+
+      {/* Dark Mode Button */}
       <button
         className={`btn ${darkMode ? 'btn-light' : 'btn-dark'} mt-auto`}
         onClick={toggleDarkMode}
