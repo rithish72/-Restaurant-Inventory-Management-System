@@ -1,0 +1,73 @@
+.register-page {
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    transition: background-color 0.5s ease;
+  }
+  
+  .register-card {
+    width: 100%;
+    max-width: 400px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+  
+  /* Register button */
+  .btn-register {
+    background-color: #fd7e14 !important;
+    color: white !important;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-register:hover {
+    background-color: #e76f11;
+  }
+  
+  .link-login {
+    color: #fd7e14;
+    text-decoration: none;
+  }
+  
+  .link-login:hover {
+    text-decoration: underline;
+  }
+  
+  @keyframes appear {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: appear 1s linear;
+}
+  
+  body.dark-mode .register-page {
+    background-color: #121212;
+  }
+  
+  body.dark-mode .register-card {
+    background-color: #1f1f1f;
+    color: #f1f1f1;
+  }
+  
+  body.dark-mode .form-control {
+    background-color: #2e2e2e;
+    color: #f1f1f1;
+    border: 1px solid #444;
+  }
+  
+  body.dark-mode .btn-register {
+    background-color: #fd7e14;
+  }
+  
+  body.dark-mode .link-login {
+    color: #fd7e14;
+  }
+  

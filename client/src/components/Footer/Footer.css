@@ -1,3 +1,7 @@
+.footer-bg{
+  background-color: #eee;
+}
+
 .footer {
   background-color: #fd7e14;
   color: white;
@@ -8,4 +12,18 @@ body.dark-mode .footer {
   background-color: #2e2d2d;
   color: #f1f1f1;
 }
-  
+
+@keyframes appear-footer {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-footer {
+  animation: appear-footer 1s linear;
+}

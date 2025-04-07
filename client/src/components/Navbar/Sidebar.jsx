@@ -13,7 +13,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`sidebar d-flex flex-column position-fixed p-3 text-white`}
+      className={`sidebar d-flex flex-column position-fixed p-3 text-white `}
       style={{
         width: '200px',
         height: '100vh',
@@ -25,31 +25,31 @@ const Sidebar = () => {
     >
 
       {/* Logo */}
-      <h4 className="mb-4 fw-bold text-center">Restaurant Inventory</h4>
+      <h4 className="mb-4 fw-bold text-center animate-sidebar">Restaurant Inventory</h4>
 
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
-          <NavLink className="nav-link text-white" to="/">
+          <NavLink className="nav-link text-white animate-sidebar" to="/home">
             <i className="bi bi-house me-1"></i> Home
           </NavLink>
         </li>
         <li>
-          <NavLink className="nav-link text-white" to="/dashboard">
+          <NavLink className="nav-link text-white animate-sidebar" to="/dashboard">
             <i className="bi bi-speedometer2 me-1"></i> Dashboard
           </NavLink>
         </li>
         <li>
-          <NavLink className="nav-link text-white" to="/inventory_list">
+          <NavLink className="nav-link text-white animate-sidebar" to="/inventory_list">
             <i className="bi bi-box-seam me-1"></i> Inventory List
           </NavLink>
         </li>
         <li>
-          <NavLink className="nav-link text-white" to="/orders">
+          <NavLink className="nav-link text-white animate-sidebar" to="/orders">
             <i className="bi bi-bag-check me-1"></i> Orders
           </NavLink>
         </li>
         <li>
-          <NavLink className="nav-link text-white" to="/suppliers">
+          <NavLink className="nav-link text-white animate-sidebar" to="/suppliers">
             <i className="bi bi-truck me-1"></i> Suppliers
           </NavLink>
         </li>
@@ -59,7 +59,7 @@ const Sidebar = () => {
 
       {/* Dark Mode Button */}
       <button
-        className={`btn ${darkMode ? 'btn-light' : 'btn-dark'} mt-auto`}
+        className={`btn ${darkMode ? 'btn-light' : 'btn-dark'} mt-auto animate-sidebar`}
         onClick={toggleDarkMode}
       >
         {darkMode ? '☀️ Light' : '🌙 Dark'}
