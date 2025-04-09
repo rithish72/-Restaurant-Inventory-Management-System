@@ -27,4 +27,14 @@ app.use(express.urlencoded(
 app.use(express.static('public'))
 app.use(cookieParser())
 
+import userRoutes from './routes/user.routes.js';
+
+// Routes
+app.use("/api/v1/users", userRoutes);
+
+// Default Route
+app.get("/", (req, res) => {
+    res.send("Server is up and running 🚀");
+});
+
 export {app};
