@@ -1,5 +1,5 @@
 .register-page {
-    background-color: #f0f2f5;
+    background-color: transparent;
     min-height: 100vh;
     transition: background-color 0.5s ease;
   }
@@ -11,8 +11,7 @@
     border-radius: 16px;
     transition: background-color 0.5s ease, color 0.5s ease;
   }
-  
-  /* Register button */
+
   .btn-register {
     background-color: #fd7e14 !important;
     color: white !important;

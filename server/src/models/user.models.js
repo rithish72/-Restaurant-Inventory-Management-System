@@ -20,7 +20,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         enum:["Staff", "Manager", "Admin"],
         default: "Staff"
+    },
+    refreshToken:{
+        type: String
     }
+},{
+    timestamps: true
 });
 
 userSchema.pre("save", async function (next) {

@@ -9,7 +9,7 @@
 
 .container-d {
     padding: 20px 40px;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    background: transparent;
 }
 
 .card {
@@ -49,15 +49,6 @@ canvas {
 }
 
 /* Dark/light mode backgrounds */
-.dark-bg {
-    background-color: #121212;
-    color: white;
-}
-
-.light-bg {
-    background-color: #eeeeee;
-    color: black;
-}
 
 .dark-bg-db {
     background-color: #2e2e2e;

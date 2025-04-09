@@ -20,6 +20,9 @@ import Register from "./pages/Register/Register.jsx";
 import Sidebar from "./components/Navbar/Sidebar.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 
+//background image
+import "./App.css";
+
 // Layout wrapper component
 const Layout = ({ children }) => {
   const location = useLocation();

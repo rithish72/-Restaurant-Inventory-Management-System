@@ -1,0 +1,14 @@
+body {
+    background: url('../public/assets/bg-light-mode.jpeg') no-repeat center center fixed;
+    background-color: #eee;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    z-index: -1;
+}
+
+body.dark-mode {
+    background: url('../public/assets/bg-dark-mode.jpeg') no-repeat center center fixed;
+    background-color: #121212;
+    background-size: cover;
+}

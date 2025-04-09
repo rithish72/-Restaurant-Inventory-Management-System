@@ -54,7 +54,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className={`container-d ${darkMode ? "dark-bg" : "light-bg"}`}>
+    <div className={`container-d`}>
       <div className={`dashboard-container ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}>
         <h2 className={`mb-4 fw-bold ${darkMode ? "text-white" : "text-dark"} animate-in`}>📊 Dashboard Overview</h2>
 
