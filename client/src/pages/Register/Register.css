@@ -47,26 +47,23 @@
     animation: appear 1s linear;
 }
   
-  body.dark-mode .register-page {
-    background-color: #121212;
-  }
   
-  body.dark-mode .register-card {
+body.dark-mode .register-card {
     background-color: #1f1f1f;
     color: #f1f1f1;
-  }
+}
   
-  body.dark-mode .form-control {
+body.dark-mode .form-control {
     background-color: #2e2e2e;
     color: #f1f1f1;
     border: 1px solid #444;
-  }
+}
   
-  body.dark-mode .btn-register {
+body.dark-mode .btn-register {
     background-color: #fd7e14;
-  }
+}
   
-  body.dark-mode .link-login {
+body.dark-mode .link-login {
     color: #fd7e14;
-  }
+}
   

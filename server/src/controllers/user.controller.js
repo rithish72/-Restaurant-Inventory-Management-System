@@ -10,7 +10,7 @@ const generateAccessAndRefreshToken = async (userId) => {
         const user = await User.findById(userId);
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
-
+        
         user.refreshToken = refreshToken;
         await user.save(
             {validateBeforeSave: false}
@@ -29,10 +29,9 @@ const generateAccessAndRefreshToken = async (userId) => {
 };
 
 const userRegister = asyncHandler(async (req, res) => {
-    const name = req.body.name?.trim();
-    const email = req.body.email?.trim().toLowerCase();
-    const password = req.body.password?.trim();
-    const role = req.body.role?.trim();
+
+    const { name, email, password, role } = req.body;
+
 
     if (!name || !email || !password || !role) {
         throw new ApiError(400, "All fields are required");
@@ -73,8 +72,7 @@ const userRegister = asyncHandler(async (req, res) => {
 });
 
 const userLogin = asyncHandler(async (req, res) => {
-    const email = req.body.email?.trim().toLowerCase();
-    const password = req.body.password?.trim();
+    const { email, password } = req.body;
 
     if (!email || !password) {
         throw new ApiError(400, "Email and password are required");
@@ -85,7 +83,7 @@ const userLogin = asyncHandler(async (req, res) => {
     if (!user || !(await user.isPasswordCorrect(password))) {
         throw new ApiError(401, "Invalid email or password");
     }
-
+    console.log(user._id)
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
