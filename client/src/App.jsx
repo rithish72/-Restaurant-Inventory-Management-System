@@ -16,6 +16,7 @@ import Suppliers from "./pages/Suppliers/Suppliers.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Register from "./pages/Register/Register.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
+import ChangePassword from "./pages/ChangePassword/ChangePassword.jsx";
 
 // Components
 import Sidebar from "./components/Sidebar/Sidebar.jsx";
@@ -69,6 +70,7 @@ const App = () => {
         <Route path="/suppliers" element={<RouteWithLayout element={<Suppliers />} />} />
         <Route path="/home" element={<RouteWithLayout element={<Home />} />} />
         <Route path="/profile" element={<RouteWithLayout element={<Profile />} />} />
+        <Route path="/change-password" element={<RouteWithLayout element={<ChangePassword />} />} />
       </Routes>
     </Router>
   );

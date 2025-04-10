@@ -18,8 +18,30 @@ const Navbar = () => {
     return () => observer.disconnect();
   }, []);
 
-  const handleLogout = () => {
-    navigate('/login');
+  const handleLogout = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:5000/api/v1/users/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Logout successfully!");
+        navigate("/login");
+      } else {
+        alert(data.message || "Logout failed.");
+      }
+    } catch (error) {
+      console.error("Logout Error:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (

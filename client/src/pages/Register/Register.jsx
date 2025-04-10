@@ -9,7 +9,7 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "Staff" // Default role
+    role: ""
   });
 
   const handleChange = (e) => {
@@ -32,9 +32,9 @@ const Register = () => {
         },
         credentials: "include",
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          password: formData.password.trim(),
           role: formData.role
         })
       });
@@ -56,7 +56,7 @@ const Register = () => {
   return (
     <div className="register-page d-flex align-items-center justify-content-center">
       <div className="register-card card p-4 shadow-lg animate-in">
-        <h3 className="text-center mb-4">Create an Account</h3>
+        <h3 className="text-center mb-3">Create an Account</h3>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">Full Name</label>
@@ -69,7 +69,7 @@ const Register = () => {
               required
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="form-label">Email</label>
             <input
               type="email"
@@ -80,7 +80,7 @@ const Register = () => {
               required
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="form-label">Password</label>
             <input
               type="password"
@@ -91,7 +91,7 @@ const Register = () => {
               required
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="form-label">Confirm Password</label>
             <input
               type="password"
@@ -102,7 +102,7 @@ const Register = () => {
               required
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-2">
             <label className="form-label">Select Role</label>
             <select
               className="form-control"
@@ -120,7 +120,7 @@ const Register = () => {
           <button type="submit" className="btn btn-register w-100">Register</button>
         </form>
 
-        <div className="text-center mt-3">
+        <div className="text-center mt-2">
           <small>
             Already have an account?{" "}
             <NavLink to="/login" className="link-login">Login</NavLink>

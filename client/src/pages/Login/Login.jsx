@@ -20,7 +20,7 @@ const Login = () => {
         headers: {
           "Content-Type": "application/json"
         },
-        credentials: "include", // ✅ Important for cookies
+        credentials: "include", 
         body: JSON.stringify(credentials)
       });
 
@@ -28,7 +28,7 @@ const Login = () => {
       setLoading(false);
 
       if (response.ok) {
-        // Optional: handle user data from response if needed
+        
         console.log("Logged in user:", data.user);
         navigate("/home");
       } else {

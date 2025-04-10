@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Home.css'
 
 
 const Home = () => {
@@ -18,8 +19,9 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="container-db">
-      <div className={`dashboard-container ${darkMode ? 'dark-bg-db' : 'light-bg-db'} animate-in`}>
+    <div className="container-home">
+      <div className={`home-container ${darkMode ? 'dark-bg-db' : 'light-bg-db'} animate-in`}>
+
         <h2 className={`mb-4 fw-bold text-center ${darkMode ? 'text-white' : 'text-dark'} animate-in`}>
           🍽️ Welcome to Restaurant Inventory Manager
         </h2>
@@ -29,17 +31,17 @@ const Home = () => {
 
         <div className="row justify-content-center animate-in">
           <div className="col-md-4 mb-4 animate-in">
-            <div className={`card shadow-sm h-100 ${darkMode ? 'bg-dark text-light' : ''}`}>
+            <div className={`card shadow-sm h-100 ${darkMode ? 'bg-dark text-light' : ''} card-animate`}>
               <div className="card-body text-center">
                 <h5 className="card-title">📦 Inventory</h5>
                 <p className="card-text">Track all your ingredients and stock levels.</p>
-                <Link to="/inventory" className="btn btn-primary mt-2">View Inventory</Link>
+                <Link to="/inventory_list" className="btn btn-primary mt-2">View Inventory</Link>
               </div>
             </div>
           </div>
 
           <div className="col-md-4 mb-4 animate-in">
-            <div className={`card shadow-sm h-100 ${darkMode ? 'bg-dark text-light' : ''}`}>
+            <div className={`card shadow-sm h-100 ${darkMode ? 'bg-dark text-light' : ''} card-animate`}>
               <div className="card-body text-center">
                 <h5 className="card-title">🚚 Suppliers</h5>
                 <p className="card-text">Keep track of your suppliers and their details.</p>
@@ -49,7 +51,7 @@ const Home = () => {
           </div>
 
           <div className="col-md-4 mb-4 animate-in">
-            <div className={`card shadow-sm h-100 ${darkMode ? 'bg-dark text-light' : ''}`}>
+            <div className={`card shadow-sm h-100 ${darkMode ? 'bg-dark text-light' : ''} card-animate`}>
               <div className="card-body text-center">
                 <h5 className="card-title">🧾 Orders</h5>
                 <p className="card-text">View and manage purchase orders efficiently.</p>

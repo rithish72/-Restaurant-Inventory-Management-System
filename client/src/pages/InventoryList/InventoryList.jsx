@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './InventoryList.css'
 
 const InventoryList = () => {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [newItem, setNewItem] = useState({
+    name: '',
+    category: '',
+    quantity: '',
+    unit: '',
+    price: '',
+  });
 
+  // Detect dark mode
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setDarkMode(document.body.classList.contains('dark-mode'));
@@ -18,20 +27,44 @@ const InventoryList = () => {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const fetchInventory = async () => {
-      try {
-        const response = await axios.get('/api/v1/inventory');
-        setInventory(response.data.data || []);
-      } catch (error) {
-        console.error('Error fetching inventory:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch inventory list
+  const fetchInventory = async () => {
+    try {
+      const response = await axios.get('/api/v1/inventory');
+      setInventory(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchInventory();
   }, []);
+
+  // Input change handler for new item
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewItem({ ...newItem, [name]: value });
+  };
+
+  // Add new item handler
+  const handleAddItem = async () => {
+    if (!newItem.name || !newItem.category || !newItem.quantity || !newItem.unit || !newItem.price) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    try {
+      await axios.post('/api/v1/inventory', newItem);
+      setNewItem({ name: '', category: '', quantity: '', unit: '', price: '' });
+      fetchInventory(); // Refresh inventory list
+    } catch (error) {
+      console.error('Error adding item:', error);
+      alert('Failed to add item');
+    }
+  };
 
   return (
     <div className="container-db">
@@ -40,6 +73,65 @@ const InventoryList = () => {
           📦 Inventory List
         </h2>
 
+        {/* Add Inventory Section */}
+        <div className={`card mb-5 p-3 ${darkMode ? 'dark-card-bg' : 'card-bg'} animate-in`}>
+          <h5 className="mb-0">➕ Add New Item</h5>
+          <div className="row g-3">
+            <div className="col-md-3">
+              <input
+                type="text"
+                className="form-control"
+                name="name"
+                placeholder="Item Name"
+                value={newItem.name}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="col-md-3">
+              <input
+                type="text"
+                className="form-control"
+                name="category"
+                placeholder="Category"
+                value={newItem.category}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="col-md-2">
+              <input
+                type="number"
+                className="form-control"
+                name="quantity"
+                placeholder="Quantity"
+                value={newItem.quantity}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="col-md-2">
+              <input
+                type="text"
+                className="form-control"
+                name="unit"
+                placeholder="Unit"
+                value={newItem.unit}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="col-md-2">
+              <input
+                type="number"
+                className="form-control"
+                name="price"
+                placeholder="Price"
+                value={newItem.price}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+          <button className="btn btn-success mt-3 w-100" onClick={handleAddItem}>Add Item</button>
+        </div>
+
+        {/* Inventory Table */}
         {loading ? (
           <div className="text-center">
             <div className={`spinner-border ${darkMode ? 'text-light' : ''}`} role="status">

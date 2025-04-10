@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Profile = () => {
   const [darkMode, setDarkMode] = useState(false);
-  const [user, setUser] = useState({ name: '', email: '' });
+  const [user, setUser] = useState({ name: '', email: '', role: '' });
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '' });
-  const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', role: '' });
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -34,16 +33,13 @@ const Profile = () => {
   }, []);
 
   const handleEditToggle = () => setEditMode(!editMode);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handlePasswordChange = (e) => {
-    setPasswords({ ...passwords, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleUpdate = async () => {
+    if (!formData.name || !formData.email) {
+      alert('Name and email cannot be empty');
+      return;
+    }
     try {
       const res = await axios.put('/api/user/update', formData, { withCredentials: true });
       setUser(res.data.user);
@@ -55,71 +51,65 @@ const Profile = () => {
     }
   };
 
-  const handleChangePassword = async () => {
-    try {
-      await axios.post('/api/user/change-password', passwords, { withCredentials: true });
-      alert('Password changed!');
-      setPasswords({ oldPassword: '', newPassword: '' });
-    } catch (err) {
-      console.error(err);
-      alert('Failed to change password');
-    }
-  };
-
   return (
-    <div className="container my-5">
-      <div className={`card ${darkMode ? 'bg-dark text-light' : ''} shadow p-4`}>
-        <h3 className="text-center mb-4">👤 Profile</h3>
+    <div className="container-db pb-3">
+      <div className={`dashboard-container mx-auto animate-in ${darkMode ? 'dark-bg-db' : 'light-bg-db'}`} style={{ maxWidth: '1000px' }}>
+        <h2 className={`text-center fw-bold mb-4 ${darkMode ? 'text-white' : 'text-dark'} animate-in`}>
+          👤 Profile Details
+        </h2>
 
-        <div className="mb-3">
-          <label className="form-label">Name</label>
-          {editMode ? (
-            <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
-          ) : (
-            <p>{user.name}</p>
-          )}
+        <div className="animate-in">
+          {/* Name */}
+          <div className="mb-4">
+            <label className={`form-label ${darkMode ? 'text-white' : 'text-dark'}`}>Name</label>
+            {editMode ? (
+              <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
+            ) : (
+              <div className={`form-control-plaintext ${darkMode ? 'text-white' : 'text-dark'}`}>{user.name}</div>
+            )}
+          </div>
+
+          {/* Email */}
+          <div className="mb-4">
+            <label className={`form-label ${darkMode ? 'text-white' : 'text-dark'}`}>Email</label>
+            {editMode ? (
+              <input type="email" name="email" className="form-control" value={formData.email} onChange={handleChange} />
+            ) : (
+              <div className={`form-control-plaintext ${darkMode ? 'text-white' : 'text-dark'}`}>{user.email}</div>
+            )}
+          </div>
+
+          {/* Role */}
+          <div className="mb-4">
+            <label className={`form-label ${darkMode ? 'text-white' : 'text-dark'}`}>Role</label>
+            {editMode ? (
+              <input type="text" name="role" className="form-control" value={formData.role} onChange={handleChange} />
+            ) : (
+              <div className={`form-control-plaintext ${darkMode ? 'text-white' : 'text-dark'}`}>{user.role || 'N/A'}</div>
+            )}
+          </div>
+
+          {/* Buttons */}
+          <div className="d-flex justify-content-between align-items-center mb-4 animate-in">
+            {editMode ? (
+              <>
+                <button className="btn btn-success me-2 w-50" onClick={handleUpdate}>💾 Save</button>
+                <button className="btn btn-secondary w-50" onClick={handleEditToggle}>❌ Cancel</button>
+              </>
+            ) : (
+              <button className="btn btn-primary w-100" onClick={handleEditToggle}>✏️ Edit Profile</button>
+            )}
+          </div>
+
+          <hr className={darkMode ? 'border-light' : ''} />
+
+          {/* Change Password */}
+          <div className="text-center animate-in">
+            <NavLink to="/change-password">
+              <button className="btn btn-warning">🔒 Change Password</button>
+            </NavLink>
+          </div>
         </div>
-
-        <div className="mb-3">
-          <label className="form-label">Email</label>
-          {editMode ? (
-            <input type="email" name="email" className="form-control" value={formData.email} onChange={handleChange} />
-          ) : (
-            <p>{user.email}</p>
-          )}
-        </div>
-
-        <div className="d-flex justify-content-between">
-          {editMode ? (
-            <>
-              <button className="btn btn-success" onClick={handleUpdate}>Save</button>
-              <button className="btn btn-secondary" onClick={handleEditToggle}>Cancel</button>
-            </>
-          ) : (
-            <button className="btn btn-primary" onClick={handleEditToggle}>Edit Profile</button>
-          )}
-        </div>
-
-        <hr className="my-4" />
-
-        <h5 className="mb-3">🔐 Change Password</h5>
-        <input
-          type="password"
-          name="oldPassword"
-          className="form-control mb-2"
-          placeholder="Old Password"
-          value={passwords.oldPassword}
-          onChange={handlePasswordChange}
-        />
-        <input
-          type="password"
-          name="newPassword"
-          className="form-control mb-3"
-          placeholder="New Password"
-          value={passwords.newPassword}
-          onChange={handlePasswordChange}
-        />
-        <button className="btn btn-warning" onClick={handleChangePassword}>Change Password</button>
       </div>
     </div>
   );

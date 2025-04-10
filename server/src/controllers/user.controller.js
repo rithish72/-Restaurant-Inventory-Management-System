@@ -83,7 +83,7 @@ const userLogin = asyncHandler(async (req, res) => {
     if (!user || !(await user.isPasswordCorrect(password))) {
         throw new ApiError(401, "Invalid email or password");
     }
-    console.log(user._id)
+    
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");

@@ -66,4 +66,8 @@ body.dark-mode .btn-register {
 body.dark-mode .link-login {
     color: #fd7e14;
 }
-  
+
+.dark-mode input::placeholder {
+  color: white;
+  opacity: 1;
+}
