@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './InventoryList.css'
+import './InventoryList.css';
 
 const InventoryList = () => {
   const [inventory, setInventory] = useState([]);
@@ -15,7 +15,6 @@ const InventoryList = () => {
     price: '',
   });
 
-  // Detect dark mode
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setDarkMode(document.body.classList.contains('dark-mode'));
@@ -27,7 +26,6 @@ const InventoryList = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Fetch inventory list
   const fetchInventory = async () => {
     try {
       const response = await axios.get('/api/v1/inventory');
@@ -43,15 +41,15 @@ const InventoryList = () => {
     fetchInventory();
   }, []);
 
-  // Input change handler for new item
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewItem({ ...newItem, [name]: value });
   };
 
-  // Add new item handler
   const handleAddItem = async () => {
-    if (!newItem.name || !newItem.category || !newItem.quantity || !newItem.unit || !newItem.price) {
+    const { name, category, quantity, unit, price } = newItem;
+
+    if (!name || !category || !quantity || !unit || !price) {
       alert('Please fill all fields');
       return;
     }
@@ -59,7 +57,7 @@ const InventoryList = () => {
     try {
       await axios.post('/api/v1/inventory', newItem);
       setNewItem({ name: '', category: '', quantity: '', unit: '', price: '' });
-      fetchInventory(); // Refresh inventory list
+      fetchInventory();
     } catch (error) {
       console.error('Error adding item:', error);
       alert('Failed to add item');
@@ -74,61 +72,75 @@ const InventoryList = () => {
         </h2>
 
         {/* Add Inventory Section */}
-        <div className={`card mb-5 p-3 ${darkMode ? 'dark-card-bg' : 'card-bg'} animate-in`}>
-          <h5 className="mb-0">➕ Add New Item</h5>
+        <div className={`card mb-5 p-4 ${darkMode ? 'dark-card-bg' : 'card-bg'} animate-in`}>
+          <h5 className="mb-3 fw-semibold">➕ Add New Item</h5>
           <div className="row g-3">
-            <div className="col-md-3">
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Item Name</label>
               <input
                 type="text"
                 className="form-control"
                 name="name"
-                placeholder="Item Name"
+                placeholder="e.g. Tomato"
                 value={newItem.name}
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-3">
-              <input
-                type="text"
-                className="form-control"
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Category</label>
+              <select
+                className="form-select"
                 name="category"
-                placeholder="Category"
                 value={newItem.category}
                 onChange={handleInputChange}
-              />
+              >
+                <option value="">Select Category</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Dairy">Dairy</option>
+                <option value="Meat">Meat</option>
+                <option value="Beverages">Beverages</option>
+                <option value="Bakery">Bakery</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
-            <div className="col-md-2">
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">Quantity</label>
               <input
                 type="number"
                 className="form-control"
                 name="quantity"
-                placeholder="Quantity"
+                placeholder="e.g. 5"
                 value={newItem.quantity}
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-2">
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">Unit</label>
               <input
                 type="text"
                 className="form-control"
                 name="unit"
-                placeholder="Unit"
+                placeholder="e.g. kg, L, pcs"
                 value={newItem.unit}
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-2">
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">Price (₹)</label>
               <input
                 type="number"
                 className="form-control"
                 name="price"
-                placeholder="Price"
+                placeholder="e.g. 100.00"
                 value={newItem.price}
                 onChange={handleInputChange}
               />
             </div>
           </div>
-          <button className="btn btn-success mt-3 w-100" onClick={handleAddItem}>Add Item</button>
+          <button className="btn btn-success mt-4 w-100 fw-bold" onClick={handleAddItem}>
+            ➕ Add Item
+          </button>
         </div>
 
         {/* Inventory Table */}

@@ -1,5 +1,5 @@
 .card-bg {
-    background-color: rgba(255, 245, 235, 0.963);
+    background-color: transparent;
     border-radius: 10px;
     border: none;
     box-shadow: none;
@@ -45,3 +45,9 @@
     font-size: 1.1rem;
   }
   
+  .dark-mode select {
+    background-color: #2e2e2e;
+    border: none;
+    color: white;
+    opacity: 1;
+  }
