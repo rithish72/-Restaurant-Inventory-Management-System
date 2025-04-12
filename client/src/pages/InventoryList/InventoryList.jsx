@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api/api.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './InventoryList.css';
 
@@ -8,11 +8,11 @@ const InventoryList = () => {
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [newItem, setNewItem] = useState({
-    name: '',
+    itemName: '',
     category: '',
     quantity: '',
     unit: '',
-    price: '',
+    threshold: ''
   });
 
   useEffect(() => {
@@ -28,7 +28,8 @@ const InventoryList = () => {
 
   const fetchInventory = async () => {
     try {
-      const response = await axios.get('/api/v1/inventory');
+      console.log("Hi")
+      const response = await api.get('api/v1/inventory/get-all-items');
       setInventory(response.data.data || []);
     } catch (error) {
       console.error('Error fetching inventory:', error);
@@ -47,16 +48,24 @@ const InventoryList = () => {
   };
 
   const handleAddItem = async () => {
-    const { name, category, quantity, unit, price } = newItem;
+    const { itemName, category, quantity, unit, threshold } = newItem;
 
-    if (!name || !category || !quantity || !unit || !price) {
+    if (!itemName || !category || !quantity || !unit || !threshold) {
       alert('Please fill all fields');
       return;
     }
 
     try {
-      await axios.post('/api/v1/inventory', newItem);
-      setNewItem({ name: '', category: '', quantity: '', unit: '', price: '' });
+      console.log("Hi")
+      await api.post('/api/v1/inventory/add-inventory-item', {
+        itemName,
+        category,
+        quantity: Number(quantity),
+        unit,
+        threshold: Number(threshold)
+      });
+      console.log("Hi")
+      setNewItem({ itemName: '', category: '', quantity: '', unit: '', threshold: '' });
       fetchInventory();
     } catch (error) {
       console.error('Error adding item:', error);
@@ -80,9 +89,9 @@ const InventoryList = () => {
               <input
                 type="text"
                 className="form-control"
-                name="name"
+                name="itemName"
                 placeholder="e.g. Tomato"
-                value={newItem.name}
+                value={newItem.itemName}
                 onChange={handleInputChange}
               />
             </div>
@@ -127,13 +136,13 @@ const InventoryList = () => {
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label fw-semibold">Price (₹)</label>
+              <label className="form-label fw-semibold">Threshold</label>
               <input
                 type="number"
                 className="form-control"
-                name="price"
-                placeholder="e.g. 100.00"
-                value={newItem.price}
+                name="threshold"
+                placeholder="e.g. 10"
+                value={newItem.threshold}
                 onChange={handleInputChange}
               />
             </div>
@@ -162,7 +171,7 @@ const InventoryList = () => {
                   <th>Category</th>
                   <th>Quantity</th>
                   <th>Unit</th>
-                  <th>Price (₹)</th>
+                  <th>Threshold</th>
                   <th>Last Updated</th>
                 </tr>
               </thead>
@@ -170,11 +179,11 @@ const InventoryList = () => {
                 {inventory.map((item, index) => (
                   <tr key={item._id}>
                     <td>{index + 1}</td>
-                    <td>{item.name}</td>
+                    <td>{item.itemName}</td>
                     <td>{item.category}</td>
                     <td>{item.quantity}</td>
                     <td>{item.unit}</td>
-                    <td>{item.price}</td>
+                    <td>{item.threshold}</td>
                     <td>{new Date(item.updatedAt).toLocaleString()}</td>
                   </tr>
                 ))}

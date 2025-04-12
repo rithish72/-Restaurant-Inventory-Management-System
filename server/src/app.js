@@ -29,8 +29,10 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 import userRoutes from './routes/user.routes.js';
+import inventoryRoute from './routes/inventory.routes.js';
 // Routes
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/inventory", inventoryRoute);
 
 // Default route
 app.get("/", (req, res) => {
