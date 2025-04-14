@@ -19,27 +19,27 @@ const getAllInventory = asyncHandler(async (req, res) => {
 
 // Add a new inventory item
 const addInventoryItem = asyncHandler(async (req, res) => {
-  const { itemName, category, threshold, quantity, unit } = req.body;
+    const { itemName, category, threshold, quantity, unit } = req.body;
 
-  if (!itemName || !category || !threshold || !quantity || !unit) {
-    throw new ApiError(400, "All fields are required");
-  }
+    if (!itemName || !category || !threshold || !quantity || !unit) {
+        throw new ApiError(400, "All fields are required");
+    }
 
-  const existingItem = await Inventory.findOne({ itemName });
+    const existingItem = await Inventory.findOne({ itemName });
 
-  if (existingItem) {
-    existingItem.quantity += quantity;
-    await existingItem.save();
+    if (existingItem) {
+        existingItem.quantity += quantity;
+        await existingItem.save();
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200, 
-                existingItem, 
-                "Item quantity updated"
-            )
-        );
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200, 
+                    existingItem, 
+                    "Item quantity updated"
+                )
+            );
     }
 
     const newItem = await Inventory.create(
@@ -51,6 +51,10 @@ const addInventoryItem = asyncHandler(async (req, res) => {
             unit 
         }
     );
+
+    if(!newItem){
+        throw new ApiError(500, "Something Went wrong")
+    }
 
     return res
         .status(201)
@@ -66,7 +70,7 @@ const addInventoryItem = asyncHandler(async (req, res) => {
 // Update an inventory item
 const updateInventoryItem = asyncHandler(async (req, res) => {
     const { id } = req.params;
-      const { itemName, category, threshold, quantity, unit } = req.body;
+        const { itemName, category, threshold, quantity, unit } = req.body;
 
     if (!itemName || !category || !threshold || !quantity || !unit) {
         throw new ApiError(400, "All fields are required");
@@ -123,8 +127,8 @@ const deleteInventoryItem = asyncHandler(async (req, res) => {
 });
 
 export {
-  getAllInventory,
-  addInventoryItem,
-  updateInventoryItem,
-  deleteInventoryItem
+      getAllInventory,
+    addInventoryItem,
+    updateInventoryItem,
+    deleteInventoryItem
 };

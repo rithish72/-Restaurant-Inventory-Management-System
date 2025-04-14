@@ -57,7 +57,7 @@ const InventoryList = () => {
 
     try {
       if (_id) {
-        // Update item
+        // Update item 
         await api.put(`/api/v1/inventory/update-inventory-item/${_id}`, {
           itemName,
           category,

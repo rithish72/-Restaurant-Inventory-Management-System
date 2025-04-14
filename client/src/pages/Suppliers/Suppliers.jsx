@@ -12,22 +12,21 @@ const Suppliers = () => {
     phone: '',
     email: '',
     address: '',
+    itemsSupplied: ''
   });
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setDarkMode(document.body.classList.contains('dark-mode'));
     });
-
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     setDarkMode(document.body.classList.contains('dark-mode'));
-
     return () => observer.disconnect();
   }, []);
 
   const fetchSuppliers = async () => {
     try {
-      const { data } = await axios.get('/api/v1/suppliers');
+      const { data } = await axios.get('/api/v1/suppliers/get-all-suppliers');
       setSuppliers(data?.data || []);
     } catch (error) {
       console.error('Error fetching suppliers:', error.message);
@@ -42,19 +41,36 @@ const Suppliers = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewSupplier({ ...newSupplier, [name]: value });
+    setNewSupplier((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddSupplier = async () => {
-    const { name, contactPerson, phone, email, address } = newSupplier;
-    if (!name || !contactPerson || !phone || !email || !address) {
+    const { name, contactPerson, phone, email, address, itemsSupplied } = newSupplier;
+
+    if (!name || !contactPerson || !phone || !email || !address || !itemsSupplied) {
       alert('Please fill all fields');
       return;
     }
 
+    const requestData = {
+      supplier: name,
+      contactPerson,
+      phoneNumber: phone,
+      email,
+      address,
+      itemsSupplied
+    };
+
     try {
-      await axios.post('/api/v1/suppliers', newSupplier);
-      setNewSupplier({ name: '', contactPerson: '', phone: '', email: '', address: '' });
+      await axios.post('/api/v1/suppliers/add-supplier', requestData);
+      setNewSupplier({
+        name: '',
+        contactPerson: '',
+        phone: '',
+        email: '',
+        address: '',
+        itemsSupplied: ''
+      });
       fetchSuppliers(); // Refresh supplier list
     } catch (error) {
       console.error('Error adding supplier:', error);
@@ -72,7 +88,7 @@ const Suppliers = () => {
         {/* Add Supplier Section */}
         <div className={`card mb-5 p-3 ${darkMode ? 'dark-card-bg' : 'card-bg'} animate-in`}>
           <h5 className="mb-0">➕ Add New Supplier</h5>
-          <div className="row g-3">
+          <div className="row g-3 mt-2">
             <div className="col-md-4">
               <input
                 type="text"
@@ -123,9 +139,19 @@ const Suppliers = () => {
                 onChange={handleInputChange}
               />
             </div>
+            <div className="col-md-12">
+              <input
+                type="text"
+                className="form-control"
+                name="itemsSupplied"
+                placeholder="Items Supplied (comma separated)"
+                value={newSupplier.itemsSupplied}
+                onChange={handleInputChange}
+              />
+            </div>
           </div>
-          <button className="btn btn-success mt-3 w-100" onClick={handleAddSupplier}>
-            Add Supplier
+          <button className="btn btn-success mt-3 w-100 fw-semibold" onClick={handleAddSupplier}>
+            ➕ Add Supplier
           </button>
         </div>
 
@@ -150,6 +176,7 @@ const Suppliers = () => {
                     <th>Phone</th>
                     <th>Email</th>
                     <th>Address</th>
+                    <th>Items Supplied</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -161,6 +188,7 @@ const Suppliers = () => {
                       <td>{supplier.phone}</td>
                       <td>{supplier.email}</td>
                       <td>{supplier.address}</td>
+                      <td>{Array.isArray(supplier.itemsSupplied) ? supplier.itemsSupplied.join(', ') : supplier.itemsSupplied}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -30,9 +30,13 @@ app.use(cookieParser());
 
 import userRoutes from './routes/user.routes.js';
 import inventoryRoute from './routes/inventory.routes.js';
+import supplierRoute from './routes/supplier.routes.js';
+import orderRoute from './routes/order.routes.js';
 // Routes
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/inventory", inventoryRoute);
+app.use("/api/v1/suppliers", supplierRoute);
+app.use("/api/v1/orders", orderRoute)
 
 // Default route
 app.get("/", (req, res) => {

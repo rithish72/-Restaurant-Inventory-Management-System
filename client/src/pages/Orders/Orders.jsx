@@ -7,29 +7,26 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [newOrder, setNewOrder] = useState({
-    name: '',
-    category: '',
-    quantity: '',
-    unit: '',
-    price: '',
+    orderNumber: '',
+    items: '',
+    supplier: '',
+    status: '',
+    deliveryDate: '',
+    notes: ''
   });
 
-  // Dark mode observer
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setDarkMode(document.body.classList.contains('dark-mode'));
     });
-
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     setDarkMode(document.body.classList.contains('dark-mode'));
-
     return () => observer.disconnect();
   }, []);
 
-  // Fetch orders from backend
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('/api/v1/orders');
+      const response = await axios.get('/api/v1/orders/get-all-orders');
       setOrders(response.data.data || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -44,24 +41,22 @@ const Orders = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewOrder({ ...newOrder, [name]: value });
+    setNewOrder((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddOrder = async () => {
-    const { name, category, quantity, unit, price } = newOrder;
-
-    if (!name || !category || !quantity || !unit || !price) {
-      alert('Please fill all fields');
-      return;
+    const { orderNumber, items, supplier, status, deliveryDate, notes } = newOrder;
+    if (!orderNumber || !items || !supplier || !status || !deliveryDate || !notes) {
+      return alert('Please fill in all fields');
     }
 
     try {
-      await axios.post('/api/v1/order', newOrder);
-      setNewOrder({ name: '', category: '', quantity: '', unit: '', price: '' });
+      await axios.post('/api/v1/orders/add-orders', newOrder);
+      setNewOrder({ orderNumber: '', items: '', supplier: '', status: '', deliveryDate: '', notes: '' });
       fetchOrders();
     } catch (error) {
-      console.error('Error adding Order:', error);
-      alert('Failed to add item');
+      console.error('Error adding order:', error);
+      alert('Failed to add order');
     }
   };
 
@@ -72,79 +67,76 @@ const Orders = () => {
           📋 Orders List
         </h2>
 
-        {/* Add Item Section */}
+        {/* Add New Order */}
         <div className={`card mb-5 p-4 ${darkMode ? 'dark-card-bg' : 'card-bg'} animate-in`}>
           <h5 className="mb-3 fw-semibold">➕ Add New Order</h5>
           <div className="row g-3">
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Item Name</label>
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">Order Number</label>
               <input
                 type="text"
                 className="form-control"
-                name="name"
-                placeholder="e.g. Tomato"
-                value={newOrder.name}
+                name="orderNumber"
+                placeholder="e.g. ORD-1001"
+                value={newOrder.orderNumber}
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Category</label>
-              <select
-                className="form-select"
-                name="category"
-                value={newOrder.category}
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">Items (comma separated)</label>
+              <input
+                type="text"
+                className="form-control"
+                name="items"
+                placeholder="e.g. Tomato, Milk"
+                value={newOrder.items}
                 onChange={handleInputChange}
-              >
-                <option value="">Select Category</option>
-                <option value="Vegetables">Vegetables</option>
-                <option value="Fruits">Fruits</option>
-                <option value="Dairy">Dairy</option>
-                <option value="Meat">Meat</option>
-                <option value="Beverages">Beverages</option>
-                <option value="Bakery">Bakery</option>
-                <option value="Other">Other</option>
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">Supplier</label>
+              <input
+                type="text"
+                className="form-control"
+                name="supplier"
+                placeholder="e.g. FreshFarms"
+                value={newOrder.supplier}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">Status</label>
+              <select className="form-select" name="status" value={newOrder.status} onChange={handleInputChange}>
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
               </select>
             </div>
             <div className="col-md-4">
-              <label className="form-label fw-semibold">Quantity</label>
+              <label className="form-label fw-semibold">Delivery Date</label>
               <input
-                type="number"
+                type="date"
                 className="form-control"
-                name="quantity"
-                min="1"
-                step="1"
-                placeholder="e.g. 5"
-                value={newOrder.quantity}
+                name="deliveryDate"
+                value={newOrder.deliveryDate}
                 onChange={handleInputChange}
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label fw-semibold">Unit</label>
-              <input
-                type="text"
+              <label className="form-label fw-semibold">Notes</label>
+              <textarea
                 className="form-control"
-                name="unit"
-                placeholder="e.g. kg, L, pcs"
-                value={newOrder.unit}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="col-md-4">
-              <label className="form-label fw-semibold">Price (₹)</label>
-              <input
-                type="number"
-                className="form-control"
-                name="price"
-                min="0"
-                step="0.01"
-                placeholder="e.g. 100.00"
-                value={newOrder.price}
+                name="notes"
+                rows="1"
+                placeholder="Additional notes"
+                value={newOrder.notes || ''}
                 onChange={handleInputChange}
               />
             </div>
           </div>
           <button className="btn btn-success mt-4 w-100 fw-bold" onClick={handleAddOrder}>
-            ➕ Add Item
+            ➕ Add Order
           </button>
         </div>
 
@@ -165,32 +157,28 @@ const Orders = () => {
                   <th>#</th>
                   <th>Order ID</th>
                   <th>Supplier</th>
-                  <th>Total Items</th>
+                  <th>Items</th>
                   <th>Status</th>
-                  <th>Order Date</th>
+                  <th>Delivery Date</th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map((order, index) => (
                   <tr key={order._id}>
                     <td>{index + 1}</td>
-                    <td>{order.orderNumber || order._id}</td>
-                    <td>{order.supplier?.name || 'N/A'}</td>
-                    <td>{order.items?.length || 0}</td>
+                    <td>{order.orderNumber}</td>
+                    <td>{order.supplier}</td>
+                    <td>{Array.isArray(order.items) ? order.items.join(', ') : order.items}</td>
                     <td>
-                      <span
-                        className={`badge px-3 py-2 rounded-pill fw-medium ${
-                          order.status === 'Pending'
-                            ? 'bg-warning text-dark'
-                            : order.status === 'Cancelled'
-                            ? 'bg-danger'
-                            : 'bg-success'
-                        }`}
-                      >
+                      <span className={`badge px-3 py-2 rounded-pill fw-medium ${
+                        order.status === 'Pending' ? 'bg-warning text-dark'
+                        : order.status === 'Cancelled' ? 'bg-danger'
+                        : 'bg-success'
+                      }`}>
                         {order.status}
                       </span>
                     </td>
-                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td>{new Date(order.deliveryDate).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

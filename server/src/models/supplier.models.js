@@ -6,9 +6,10 @@ const supplierSchema = new mongoose.Schema({
         required: true,
         trim: true,
       },
-      contactPerson: {
-        type: String,
-        trim: true,
+      contactPerson:{
+        type:String,
+        required: true,
+        trim: true
       },
       email: {
         type: String,
@@ -30,7 +31,7 @@ const supplierSchema = new mongoose.Schema({
       ],
 },
 {
-    timeseries: true
+    timestamps: true
 })
 
 export const Supplier = mongoose.model("Supplier", supplierSchema);
