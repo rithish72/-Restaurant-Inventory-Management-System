@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../../api/api.js'
+import api from '../../api/api.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './InventoryList.css';
 
@@ -12,7 +12,8 @@ const InventoryList = () => {
     category: '',
     quantity: '',
     unit: '',
-    threshold: ''
+    threshold: '',
+    _id: ''
   });
 
   useEffect(() => {
@@ -28,7 +29,6 @@ const InventoryList = () => {
 
   const fetchInventory = async () => {
     try {
-      console.log("Hi")
       const response = await api.get('api/v1/inventory/get-all-items');
       setInventory(response.data.data || []);
     } catch (error) {
@@ -47,8 +47,8 @@ const InventoryList = () => {
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleAddItem = async () => {
-    const { itemName, category, quantity, unit, threshold } = newItem;
+  const handleAddOrUpdateItem = async () => {
+    const { itemName, category, quantity, unit, threshold, _id } = newItem;
 
     if (!itemName || !category || !quantity || !unit || !threshold) {
       alert('Please fill all fields');
@@ -56,20 +56,45 @@ const InventoryList = () => {
     }
 
     try {
-      console.log("Hi")
-      await api.post('/api/v1/inventory/add-inventory-item', {
-        itemName,
-        category,
-        quantity: Number(quantity),
-        unit,
-        threshold: Number(threshold)
-      });
-      console.log("Hi")
-      setNewItem({ itemName: '', category: '', quantity: '', unit: '', threshold: '' });
+      if (_id) {
+        // Update item
+        await api.put(`/api/v1/inventory/update-inventory-item/${_id}`, {
+          itemName,
+          category,
+          quantity: Number(quantity),
+          unit,
+          threshold: Number(threshold)
+        });
+      } else {
+        // Add new item
+        await api.post('/api/v1/inventory/add-inventory-item', {
+          itemName,
+          category,
+          quantity: Number(quantity),
+          unit,
+          threshold: Number(threshold)
+        });
+      }
+
+      setNewItem({ itemName: '', category: '', quantity: '', unit: '', threshold: '', _id: '' });
       fetchInventory();
     } catch (error) {
-      console.error('Error adding item:', error);
-      alert('Failed to add item');
+      console.error(_id ? 'Error updating item:' : 'Error adding item:', error);
+      alert(_id ? 'Failed to update item' : 'Failed to add item');
+    }
+  };
+
+  const handleEditItem = (item) => {
+    setNewItem({ ...item });
+  };
+
+  const handleDeleteItem = async (itemId) => {
+    try {
+      await api.delete(`/api/v1/inventory/delete-inventory-item/${itemId}`);
+      fetchInventory();
+    } catch (error) {
+      console.error("Failed in deleting the item", error);
+      alert("Failed to delete item");
     }
   };
 
@@ -80,9 +105,9 @@ const InventoryList = () => {
           📦 Inventory List
         </h2>
 
-        {/* Add Inventory Section */}
+        {/* Add or Edit Inventory Section */}
         <div className={`card mb-5 p-4 ${darkMode ? 'dark-card-bg' : 'card-bg'} animate-in`}>
-          <h5 className="mb-3 fw-semibold">➕ Add New Item</h5>
+          <h5 className="mb-3 fw-semibold">{newItem._id ? '✏️ Edit Item' : '➕ Add New Item'}</h5>
           <div className="row g-3">
             <div className="col-md-6">
               <label className="form-label fw-semibold">Item Name</label>
@@ -147,8 +172,8 @@ const InventoryList = () => {
               />
             </div>
           </div>
-          <button className="btn btn-success mt-4 w-100 fw-bold" onClick={handleAddItem}>
-            ➕ Add Item
+          <button className="btn btn-success mt-4 w-100 fw-bold" onClick={handleAddOrUpdateItem}>
+            {newItem._id ? '✅ Update Item' : '➕ Add Item'}
           </button>
         </div>
 
@@ -163,7 +188,7 @@ const InventoryList = () => {
           <div className="alert alert-warning text-center animate-in">No inventory items found.</div>
         ) : (
           <div className="table-responsive animate-in">
-            <table className={`table table-bordered table-hover rounded-3 overflow-hidden ${darkMode ? 'table-dark text-light' : ''}`}>
+            <table className={`table table-bordered table-hover ${darkMode ? 'table-dark text-light' : ''}`}>
               <thead className="table-primary">
                 <tr>
                   <th>#</th>
@@ -173,6 +198,7 @@ const InventoryList = () => {
                   <th>Unit</th>
                   <th>Threshold</th>
                   <th>Last Updated</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -185,6 +211,10 @@ const InventoryList = () => {
                     <td>{item.unit}</td>
                     <td>{item.threshold}</td>
                     <td>{new Date(item.updatedAt).toLocaleString()}</td>
+                    <td>
+                      <button className="btn btn-sm btn-primary me-2" onClick={() => handleEditItem(item)}>Edit</button>
+                      <button className="btn btn-sm btn-danger" onClick={() => handleDeleteItem(item._id)}>Delete</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
