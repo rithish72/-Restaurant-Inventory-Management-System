@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
 import './Navbar.css';
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
+  // Toggle Dark mode
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setDarkMode(document.body.classList.contains('dark-mode'));
@@ -18,9 +20,10 @@ const Navbar = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Handle Logout
   const handleLogout = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await fetch("http://localhost:5000/api/v1/users/logout", {
         method: "POST",
@@ -29,28 +32,24 @@ const Navbar = () => {
         },
         credentials: "include",
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
-        alert("Logout successfully!");
+        toast.success("Logout successful!");
         navigate("/login");
       } else {
-        alert(data.message || "Logout failed.");
+        toast.error(data.message || "Logout failed.");
       }
     } catch (error) {
       console.error("Logout Error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
   return (
     <nav className={`navbar navbar-expand-lg bg-transparent`}>
       <div className="container-fluid">
-        <Link className={`navbar-brand ${darkMode ? 'text-light' : 'text-dark'}`} to="/">
-          🧠 SmartInventory
-        </Link>
-
         <div className="ms-auto d-flex align-items-center">
           <Dropdown align="end">
             <Dropdown.Toggle as="div" className="custom-dropdown-toggle">

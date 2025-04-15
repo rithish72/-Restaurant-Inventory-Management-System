@@ -33,15 +33,22 @@ const addOrders = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Order with this number already exists.");
     }
 
-    // ✅ Find supplier by name
+    // Find supplier by name
     const supplierDoc = await Supplier.findOne({ name: supplier });
     if (!supplierDoc) {
         throw new ApiError(404, `Supplier "${supplier}" not found.`);
     }
 
-    // ✅ Replace item names with ObjectIds
+    // Replace item names with ObjectIds, now using itemName field in the Inventory model
     const populatedItems = await Promise.all(items.map(async (itemObj) => {
-        const inventoryItem = await Inventory.findOne({ name: itemObj.item });
+        if (!itemObj.item) {
+            throw new ApiError(400, 'Item name is missing in the request.');
+        }
+
+        const inventoryItem = await Inventory.findOne({ 
+            itemName: { $regex: new RegExp('^' + itemObj.item + '$', 'i') }
+        });
+        
         if (!inventoryItem) {
             throw new ApiError(404, `Inventory item "${itemObj.item}" not found.`);
         }
@@ -57,14 +64,21 @@ const addOrders = asyncHandler(async (req, res) => {
         items: populatedItems,
         supplier: supplierDoc._id,
         status,
-        deliveryDate: new Date(deliveryDate), // Make sure it's parsed correctly
+        deliveryDate: new Date(deliveryDate), 
         notes
     });
 
     return res
         .status(201)
-        .json(new ApiResponse(201, newOrder, "Order successfully created."));
+        .json(
+            new ApiResponse(
+                201, 
+                newOrder, 
+                "Order successfully created."
+            )
+        );
 });
+
 
 // Update order by ID
 const updateOrders = asyncHandler(async (req, res) => {
@@ -85,7 +99,9 @@ const updateOrders = asyncHandler(async (req, res) => {
             deliveryDate,
             notes
         },
-        { new: true }
+        { 
+            new: true 
+        }
     );
 
     if (!updatedOrder) {

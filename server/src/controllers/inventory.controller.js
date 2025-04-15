@@ -2,6 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Inventory } from "../models/inventory.models.js";
+import mongoose from "mongoose";
 
 // Get all inventory items
 const getAllInventory = asyncHandler(async (req, res) => {
@@ -14,6 +15,29 @@ const getAllInventory = asyncHandler(async (req, res) => {
                 items, 
                 "All items fetched successfully"
         )
+    );
+});
+
+/// Get Current Item
+const getCurrentItem = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        throw new ApiError(400, "Item ID is required");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Item ID format");
+    }
+
+    const existingItem = await Inventory.findById(id);
+
+    if (!existingItem) {
+        throw new ApiError(404, "Item not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, existingItem, "Item retrieved successfully")
     );
 });
 
@@ -127,8 +151,9 @@ const deleteInventoryItem = asyncHandler(async (req, res) => {
 });
 
 export {
-      getAllInventory,
+    getAllInventory,
     addInventoryItem,
     updateInventoryItem,
-    deleteInventoryItem
+    deleteInventoryItem,
+    getCurrentItem
 };

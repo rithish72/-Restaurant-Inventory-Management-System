@@ -1,52 +1,48 @@
 .register-page {
     background-color: transparent;
-    min-height: 100vh;
+    min-height: 90vh;
     transition: background-color 0.5s ease;
-  }
+}
   
-  .register-card {
+.dark-bg-register {
     width: 100%;
-    max-width: 400px;
-    background-color: #ffffff;
+    max-width: 440px;
     border-radius: 16px;
     transition: background-color 0.5s ease, color 0.5s ease;
-  }
+    background-color: rgba(68, 68, 68, 0.95);
+    border: 2px solid white;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+    color: white;
+}
+  
+.light-bg-register{
+    width: 100%;
+    max-width: 440px;
+    border-radius: 16px;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: rgba(255, 245, 235, 0.922);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
-  .btn-register {
+.btn-register {
     background-color: #fd7e14 !important;
     color: white !important;
     font-weight: bold;
     transition: background-color 0.3s ease;
-  }
+}
   
-  .btn-register:hover {
+.btn-register:hover {
     background-color: #e76f11;
-  }
-  
-  .link-login {
-    color: #fd7e14;
-    text-decoration: none;
-  }
-  
-  .link-login:hover {
-    text-decoration: underline;
-  }
-  
-  @keyframes appear {
-    0% {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
-.animate-in {
-    animation: appear 1s linear;
+.link-login {
+    color: #fd7e14;
+    text-decoration: none;
 }
-  
+
+.link-login:hover {
+    text-decoration: underline;
+}
   
 body.dark-mode .register-card {
     background-color: #1f1f1f;
@@ -60,7 +56,7 @@ body.dark-mode .form-control {
 }
   
 body.dark-mode .btn-register {
-    background-color: #fd7e14;
+    background-color: #fd7e14; 
 }
   
 body.dark-mode .link-login {
@@ -68,6 +64,33 @@ body.dark-mode .link-login {
 }
 
 .dark-mode input::placeholder {
-  color: white;
-  opacity: 1;
+    color: white;
+    opacity: 1;
+}
+
+
+select.form-control, 
+option {
+    background-color: transparent;
+    color: #212529;
+    transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+}
+
+select.form-control:hover,
+select.form-control:focus {
+    border: 1px solid #fd7e14;
+    background-color: #ffffff;
+}
+
+body.dark-mode select.form-control,
+body.dark-mode option {
+    background-color: #2e2e2e;
+    color: #f1f1f1;
+    border: 1px solid #444;
+}
+
+body.dark-mode select.form-control:hover,
+body.dark-mode select.form-control:focus {
+    border: 1px solid #fd7e14;
+    background-color: #1c1c1c;
 }

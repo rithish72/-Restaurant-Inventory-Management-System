@@ -1,15 +1,27 @@
 .login-page {
     background-color: transparent;
-    min-height: 100vh;
+    min-height: 90vh;
     transition: background-color 0.5s ease;
 }
 
-.login-card {
+.dark-bg-login {
     width: 100%;
     max-width: 380px;
-    background-color: #ffffff;
     border-radius: 16px;
     transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: rgba(68, 68, 68, 0.95);
+    border: 2px solid white;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+    color: white;
+}
+  
+.light-bg-login{
+    width: 100%;
+    max-width: 380px;
+    border-radius: 16px;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: rgba(255, 245, 235, 0.922);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn-login {
@@ -66,4 +78,23 @@ body.dark-mode .link-register {
 
 .animate-in {
     animation: appear 1s linear;
+}
+
+input.form-control {
+    background-color: transparent;
+    color: inherit;
+    transition: background-color 0.3s ease;
+}
+
+input.form-control:hover {
+    background-color: #fff;
+    border: 1px solid #fd7e14;
+}
+
+input.form-control:focus {
+    background-color: #fff;
+    border: 1px solid #fd7e14;
+    border-color: #e76f11;
+    outline: none;
+    box-shadow: 0 0 0 0.15rem rgba(253, 126, 20, 0.25);
 }

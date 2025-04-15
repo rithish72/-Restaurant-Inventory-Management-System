@@ -6,11 +6,15 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
+import { ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 // Pages
 import Home from "./pages/Home/Home.jsx";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import InventoryList from "./pages/InventoryList/InventoryList.jsx";
+import AddInventoryItem from "./pages/InventoryList/AddItem.jsx";
+import UpdateInventoryItem from "./pages/InventoryList/UpdateItem.jsx";
 import Orders from "./pages/Orders/Orders.jsx";
 import Suppliers from "./pages/Suppliers/Suppliers.jsx";
 import Login from "./pages/Login/Login.jsx";
@@ -55,17 +59,30 @@ const RouteWithLayout = ({ element }) => {
 const App = () => {
   return (
     <Router>
+      {/*  Toast Container should be placed here so it's always available */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       <Routes>
         {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login" />} />
 
-        {/* Auth pages (no layout) */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* App pages (with layout) */}
         <Route path="/dashboard" element={<RouteWithLayout element={<Dashboard />} />} />
         <Route path="/inventory_list" element={<RouteWithLayout element={<InventoryList />} />} />
+        <Route path="/inventory_list/add-item" element={<RouteWithLayout element={<AddInventoryItem />} />} />
+        <Route path="/inventory_list/update-item/:id?" element={<RouteWithLayout element={<UpdateInventoryItem />} />} />
         <Route path="/orders" element={<RouteWithLayout element={<Orders />} />} />
         <Route path="/suppliers" element={<RouteWithLayout element={<Suppliers />} />} />
         <Route path="/home" element={<RouteWithLayout element={<Home />} />} />
@@ -75,5 +92,6 @@ const App = () => {
     </Router>
   );
 };
+
 
 export default App;
