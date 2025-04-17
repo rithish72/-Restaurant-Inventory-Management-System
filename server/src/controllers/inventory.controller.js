@@ -9,13 +9,7 @@ const getAllInventory = asyncHandler(async (req, res) => {
     const items = await Inventory.find();
     return res
         .status(200)
-        .json(
-            new ApiResponse(
-                200, 
-                items, 
-                "All items fetched successfully"
-        )
-    );
+        .json(new ApiResponse(200, items, "All items fetched successfully"));
 });
 
 /// Get Current Item
@@ -36,9 +30,11 @@ const getCurrentItem = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Item not found");
     }
 
-    return res.status(200).json(
-        new ApiResponse(200, existingItem, "Item retrieved successfully")
-    );
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, existingItem, "Item retrieved successfully")
+        );
 });
 
 // Add a new inventory item
@@ -57,60 +53,52 @@ const addInventoryItem = asyncHandler(async (req, res) => {
 
         return res
             .status(200)
-            .json(
-                new ApiResponse(
-                    200, 
-                    existingItem, 
-                    "Item quantity updated"
-                )
-            );
+            .json(new ApiResponse(200, existingItem, "Item quantity updated"));
     }
 
-    const newItem = await Inventory.create(
-        { 
-            itemName, 
-            category, 
-            threshold, 
-            quantity, 
-            unit 
-        }
-    );
+    const newItem = await Inventory.create({
+        itemName,
+        category,
+        threshold,
+        quantity,
+        unit,
+    });
 
-    if(!newItem){
-        throw new ApiError(500, "Something Went wrong")
+    if (!newItem) {
+        throw new ApiError(500, "Something Went wrong");
     }
 
     return res
         .status(201)
-        .json(
-            new ApiResponse(
-                201, 
-                newItem, 
-                "New item added successfully"
-            )
-        );
+        .json(new ApiResponse(201, newItem, "New item added successfully"));
 });
 
 // Update an inventory item
 const updateInventoryItem = asyncHandler(async (req, res) => {
     const { id } = req.params;
-        const { itemName, category, threshold, quantity, unit } = req.body;
+    const { itemName, category, threshold, quantity, unit } = req.body;
 
+    // Ensure fields are provided
     if (!itemName || !category || !threshold || !quantity || !unit) {
         throw new ApiError(400, "All fields are required");
+    }
+
+    // Validate quantity and threshold as numbers
+    if (isNaN(quantity) || isNaN(threshold)) {
+        throw new ApiError(400, "Quantity and Threshold must be valid numbers");
     }
 
     const updatedItem = await Inventory.findByIdAndUpdate(
         id,
         {
-            itemName, 
-            category, 
-            threshold, 
-            quantity, 
-            unit 
+            itemName,
+            category,
+            threshold,
+            quantity,
+            unit,
         },
-        { 
-            new: true 
+        {
+            new: true,
         }
     );
 
@@ -120,13 +108,7 @@ const updateInventoryItem = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(
-            new ApiResponse(
-                200, 
-                updatedItem, 
-                "Item updated successfully"
-            )
-        );
+        .json(new ApiResponse(200, updatedItem, "Item updated successfully"));
 });
 
 // Delete an inventory item
@@ -141,13 +123,7 @@ const deleteInventoryItem = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(
-            new ApiResponse(
-                200, 
-                deletedItem, 
-                "Item deleted successfully"
-            )
-        );
+        .json(new ApiResponse(200, deletedItem, "Item deleted successfully"));
 });
 
 export {
@@ -155,5 +131,5 @@ export {
     addInventoryItem,
     updateInventoryItem,
     deleteInventoryItem,
-    getCurrentItem
+    getCurrentItem,
 };

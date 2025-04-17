@@ -2,18 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./InventoryList.css";
-import { toast } from "react-toastify";
 
-const UpdateItem = () => {
+const UpdateOrder = () => {
     const [darkMode, setDarkMode] = useState(false);
-    const [updatedItem, setUpdatedItem] = useState({
-        itemName: "",
-        category: "",
-        quantity: "",
-        unit: "",
-        threshold: "",
-        _id: "",
+    const [updatedOrder, setUpdatedOrder] = useState({
+        orderNumber: "",
+        items: "",
+        supplier: "",
+        status: "",
+        deliveryDate: "",
+        notes: "",
     });
 
     const navigate = useNavigate();
@@ -34,45 +32,45 @@ const UpdateItem = () => {
         return () => observer.disconnect();
     }, []);
 
-    // Fetch item if editing
+    // Fetch Order if editing
     useEffect(() => {
         if (id) {
-            const fetchItem = async () => {
+            const fetchOrder = async () => {
                 try {
                     const response = await api.get(
-                        `/api/v1/inventory/get-inventory-item/${id}`
+                        `/api/v1/order/get-order/${id}`
                     );
                     if (response.data?.data) {
-                        setUpdatedItem({ ...response.data.data, _id: id });
+                        setUpdatedOrder({ ...response.data.data, _id: id });
                     }
                 } catch (error) {
                     console.error("Error fetching item:", error);
-                    toast.error("Failed to fetch item data");
+                    alert("Failed to fetch item data");
                 }
             };
 
-            fetchItem();
+            fetchOrder();
         }
     }, [id]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setUpdatedItem((prev) => ({ ...prev, [name]: value }));
+        setUpdatedOrder((prev) => ({ ...prev, [name]: value }));
     };
 
     // Submit form
     const handleSubmit = async () => {
         const { itemName, category, quantity, unit, threshold, _id } =
-            updatedItem;
+            updatedOrder;
 
         if (!itemName || !category || !quantity || !unit || !threshold) {
-            toast.error("Please fill all the fields.");
+            alert("Please fill all the fields.");
             return;
         }
 
         try {
             if (_id) {
-                await api.patch(
+                await api.put(
                     `/api/v1/inventory/update-inventory-item/${_id}`,
                     {
                         itemName,
@@ -82,7 +80,7 @@ const UpdateItem = () => {
                         threshold: Number(threshold),
                     }
                 );
-                toast.success("Item updated successfully!");
+                alert("Item updated successfully!");
             } else {
                 await api.post("/api/v1/inventory/add-inventory-item", {
                     itemName,
@@ -91,15 +89,16 @@ const UpdateItem = () => {
                     unit,
                     threshold: Number(threshold),
                 });
-                toast.success("Item added successfully!");
+                alert("Item added successfully!");
             }
+
             navigate("/inventory_list");
         } catch (error) {
             console.error(
                 _id ? "Error updating item:" : "Error adding item:",
                 error
             );
-            toast.error(_id ? "Failed to update item" : "Failed to add item");
+            alert(_id ? "Failed to update item" : "Failed to add item");
         }
     };
 
@@ -122,7 +121,7 @@ const UpdateItem = () => {
                             name="itemName"
                             className="form-control"
                             placeholder="e.g. Tomato"
-                            value={updatedItem.itemName}
+                            value={updatedOrder.itemName}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -134,7 +133,7 @@ const UpdateItem = () => {
                         <select
                             name="category"
                             className="form-select"
-                            value={updatedItem.category}
+                            value={updatedOrder.category}
                             onChange={handleInputChange}
                         >
                             <option value="">Select Category</option>
@@ -157,7 +156,7 @@ const UpdateItem = () => {
                             name="quantity"
                             className="form-control"
                             placeholder="e.g. 10"
-                            value={updatedItem.quantity}
+                            value={updatedOrder.quantity}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -169,7 +168,7 @@ const UpdateItem = () => {
                             name="unit"
                             className="form-control"
                             placeholder="e.g. kg, L, pcs"
-                            value={updatedItem.unit}
+                            value={updatedOrder.unit}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -183,21 +182,21 @@ const UpdateItem = () => {
                             name="threshold"
                             className="form-control"
                             placeholder="e.g. 5"
-                            value={updatedItem.threshold}
+                            value={updatedOrder.threshold}
                             onChange={handleInputChange}
                         />
                     </div>
                 </div>
 
                 <button
-                    className="btn mt-4 w-100 fw-bold btn-submit"
+                    className="btn btn-success mt-4 w-100 fw-bold"
                     onClick={handleSubmit}
                 >
-                    {updatedItem._id ? "Update Item" : "Add Item"}
+                    Update Item
                 </button>
             </div>
         </div>
     );
 };
 
-export default UpdateItem;
+export default UpdateOrder;

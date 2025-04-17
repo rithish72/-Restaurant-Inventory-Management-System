@@ -3,70 +3,75 @@
     padding-bottom: 20px;
     background: transparent;
 }
-  
+
 .dashboard-container {
     padding: 30px;
     border-radius: 10px;
     border: 2px solid transparent;
-    transition: background-color 0.5s ease, color 0.5s ease, border 0.5s ease;
+    transition:
+        background-color 0.5s ease,
+        color 0.5s ease,
+        border 0.5s ease;
 }
-  
+
 .card {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-  
+
 .card-title {
     font-size: 1.2rem;
     font-weight: bold;
 }
-  
+
 .list-group-item {
     font-size: 0.95rem;
 }
-  
+
 .dashboard-container ul {
     margin-top: 10px;
 }
-  
+
 .dashboard-container h4 {
     margin: 30px 0 10px;
 }
-  
+
 .row {
     margin-top: 20px;
 }
-  
+
 canvas {
     display: block;
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
     max-height: 250px !important;
 }
-  
-  /* Dark/light mode backgrounds */
+
+/* Dark/light mode backgrounds */
 .dark-bg-db {
     background-color: rgba(68, 68, 68, 0.95);
     border: 2px solid white;
     box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
 }
-  
+
 .light-bg-db {
     background-color: rgba(255, 245, 235, 0.922);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-  
-  /* List items in dark mode */
+
+/* List items in dark mode */
 body.dark-mode .list-group-item {
     background-color: #1f1f1f;
     color: #f1f1f1;
     border-color: #333;
 }
-  
+
 body {
-    transition: background-color 0.5s ease, color 0.5s ease;
+    transition:
+        background-color 0.5s ease,
+        color 0.5s ease;
 }
-  
+
 @keyframes appear {
     0% {
         opacity: 0;
@@ -77,12 +82,11 @@ body {
         transform: translateY(0);
     }
 }
-  
+
 .animate-in {
     animation: appear 1s linear;
 }
-  
+
 .pie-chart {
     max-width: 100%;
 }
-  

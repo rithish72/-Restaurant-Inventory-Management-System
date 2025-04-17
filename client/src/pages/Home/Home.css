@@ -2,16 +2,21 @@
     padding: 30px;
     border-radius: 10px;
     border: 2px solid transparent;
-    transition: background-color 0.5s ease, color 0.5s ease, border 0.5s ease;
+    transition:
+        background-color 0.5s ease,
+        color 0.5s ease,
+        border 0.5s ease;
 }
-.container-home{
+.container-home {
     padding: 0px 20px;
     padding-bottom: 20px;
     background: transparent;
 }
 
 .card-animate {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 .card-animate:hover {

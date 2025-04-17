@@ -2,20 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./InventoryList.css";
-import { toast } from "react-toastify";
+import "./Suppliers.css";
 
-const UpdateItem = () => {
+const UpdateSupplier = () => {
     const [darkMode, setDarkMode] = useState(false);
-    const [updatedItem, setUpdatedItem] = useState({
-        itemName: "",
-        category: "",
-        quantity: "",
-        unit: "",
-        threshold: "",
+    const [updatedSupplier, setUpdatedSupplier] = useState({
+        name: "",
+        contactPerson: "",
+        phone: "",
+        email: "",
+        address: "",
+        itemsSupplied: "",
         _id: "",
     });
-
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [isFormValid, setIsFormValid] = useState(true); 
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -34,45 +36,57 @@ const UpdateItem = () => {
         return () => observer.disconnect();
     }, []);
 
-    // Fetch item if editing
+    // Fetch Supplier if editing
     useEffect(() => {
         if (id) {
-            const fetchItem = async () => {
+            const fetchSupplier = async () => {
+                setLoading(true);
                 try {
                     const response = await api.get(
-                        `/api/v1/inventory/get-inventory-item/${id}`
+                        `/api/v1/Suppliers/get-Supplier/${id}`
                     );
                     if (response.data?.data) {
-                        setUpdatedItem({ ...response.data.data, _id: id });
+                        setUpdatedSupplier({ ...response.data.data, _id: id });
                     }
                 } catch (error) {
-                    console.error("Error fetching item:", error);
-                    toast.error("Failed to fetch item data");
+                    console.error("Error fetching Supplier:", error);
+                    setError("Failed to fetch Supplier data.");
+                } finally {
+                    setLoading(false);
                 }
             };
 
-            fetchItem();
+            fetchSupplier();
         }
     }, [id]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setUpdatedItem((prev) => ({ ...prev, [name]: value }));
+        setUpdatedSupplier((prev) => ({ ...prev, [name]: value }));
+        validateForm();
+    };
+
+    const validateForm = () => {
+        const { itemName, category, quantity, unit, threshold } =
+            updatedSupplier;
+        setIsFormValid(itemName && category && quantity && unit && threshold);
     };
 
     // Submit form
     const handleSubmit = async () => {
-        const { itemName, category, quantity, unit, threshold, _id } =
-            updatedItem;
-
-        if (!itemName || !category || !quantity || !unit || !threshold) {
-            toast.error("Please fill all the fields.");
+        if (!isFormValid) {
+            alert("Please fill all fields correctly.");
             return;
         }
 
+        const { itemName, category, quantity, unit, threshold, _id } =
+            updatedSupplier;
+
+        setLoading(true);
+        setError(null);
         try {
             if (_id) {
-                await api.patch(
+                await api.put(
                     `/api/v1/inventory/update-inventory-item/${_id}`,
                     {
                         itemName,
@@ -82,7 +96,7 @@ const UpdateItem = () => {
                         threshold: Number(threshold),
                     }
                 );
-                toast.success("Item updated successfully!");
+                alert("Item updated successfully!");
             } else {
                 await api.post("/api/v1/inventory/add-inventory-item", {
                     itemName,
@@ -91,7 +105,7 @@ const UpdateItem = () => {
                     unit,
                     threshold: Number(threshold),
                 });
-                toast.success("Item added successfully!");
+                alert("Item added successfully!");
             }
             navigate("/inventory_list");
         } catch (error) {
@@ -99,7 +113,9 @@ const UpdateItem = () => {
                 _id ? "Error updating item:" : "Error adding item:",
                 error
             );
-            toast.error(_id ? "Failed to update item" : "Failed to add item");
+            setError(_id ? "Failed to update item" : "Failed to add item");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -112,6 +128,9 @@ const UpdateItem = () => {
                     Update Inventory Item
                 </h4>
 
+                {loading && <div className="loading-spinner">Loading...</div>}
+                {error && <div className="alert alert-danger">{error}</div>}
+
                 <div className="row g-3">
                     <div className="col-md-6">
                         <label className="form-label fw-semibold">
@@ -122,7 +141,7 @@ const UpdateItem = () => {
                             name="itemName"
                             className="form-control"
                             placeholder="e.g. Tomato"
-                            value={updatedItem.itemName}
+                            value={updatedSupplier.itemName}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -134,7 +153,7 @@ const UpdateItem = () => {
                         <select
                             name="category"
                             className="form-select"
-                            value={updatedItem.category}
+                            value={updatedSupplier.category}
                             onChange={handleInputChange}
                         >
                             <option value="">Select Category</option>
@@ -157,7 +176,7 @@ const UpdateItem = () => {
                             name="quantity"
                             className="form-control"
                             placeholder="e.g. 10"
-                            value={updatedItem.quantity}
+                            value={updatedSupplier.quantity}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -169,7 +188,7 @@ const UpdateItem = () => {
                             name="unit"
                             className="form-control"
                             placeholder="e.g. kg, L, pcs"
-                            value={updatedItem.unit}
+                            value={updatedSupplier.unit}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -183,21 +202,22 @@ const UpdateItem = () => {
                             name="threshold"
                             className="form-control"
                             placeholder="e.g. 5"
-                            value={updatedItem.threshold}
+                            value={updatedSupplier.threshold}
                             onChange={handleInputChange}
                         />
                     </div>
                 </div>
 
                 <button
-                    className="btn mt-4 w-100 fw-bold btn-submit"
+                    className="btn btn-success mt-4 w-100 fw-bold"
                     onClick={handleSubmit}
+                    disabled={loading || !isFormValid}
                 >
-                    {updatedItem._id ? "Update Item" : "Add Item"}
+                    {loading ? "Updating..." : "Update Item"}
                 </button>
             </div>
         </div>
     );
 };
 
-export default UpdateItem;
+export default UpdateSupplier;

@@ -1,14 +1,14 @@
 import express from "express";
 import {
-  userLogin,
-  userRegister,
-  userLogout,
-  refreshAccessToken,
-  changeCurrentPassword,
-  getCurrentUser,
-  updateAccountDetails,
-  getAllUsers,
-  deleteUser
+    userLogin,
+    userRegister,
+    userLogout,
+    refreshAccessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    getAllUsers,
+    deleteUser,
 } from "../controllers/user.controller.js";
 
 import { verifyJWT } from "../middlewares/auth.middlewares.js";

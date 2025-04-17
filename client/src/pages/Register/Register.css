@@ -3,23 +3,27 @@
     min-height: 90vh;
     transition: background-color 0.5s ease;
 }
-  
+
 .dark-bg-register {
     width: 100%;
     max-width: 440px;
     border-radius: 16px;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    transition:
+        background-color 0.5s ease,
+        color 0.5s ease;
     background-color: rgba(68, 68, 68, 0.95);
     border: 2px solid white;
     box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
     color: white;
 }
-  
-.light-bg-register{
+
+.light-bg-register {
     width: 100%;
     max-width: 440px;
     border-radius: 16px;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    transition:
+        background-color 0.5s ease,
+        color 0.5s ease;
     background-color: rgba(255, 245, 235, 0.922);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -30,7 +34,7 @@
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
-  
+
 .btn-register:hover {
     background-color: #e76f11;
 }
@@ -43,22 +47,22 @@
 .link-login:hover {
     text-decoration: underline;
 }
-  
+
 body.dark-mode .register-card {
     background-color: #1f1f1f;
     color: #f1f1f1;
 }
-  
+
 body.dark-mode .form-control {
     background-color: #2e2e2e;
     color: #f1f1f1;
     border: 1px solid #444;
 }
-  
+
 body.dark-mode .btn-register {
-    background-color: #fd7e14; 
+    background-color: #fd7e14;
 }
-  
+
 body.dark-mode .link-login {
     color: #fd7e14;
 }
@@ -68,12 +72,14 @@ body.dark-mode .link-login {
     opacity: 1;
 }
 
-
-select.form-control, 
+select.form-control,
 option {
     background-color: transparent;
     color: #212529;
-    transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border 0.3s ease;
 }
 
 select.form-control:hover,

@@ -1,42 +1,45 @@
-import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 // Define the user schema
-const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Name is required'],
+const userSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: [true, "Name is required"],
+        },
+        email: {
+            type: String,
+            required: [true, "Email is required"],
+            unique: true,
+            lowercase: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: [true, "Password is required"],
+            minlength: 6,
+        },
+        role: {
+            type: String,
+            enum: ["Staff", "Manager", "Admin"],
+            default: "Staff",
+            required: true,
+        },
+        refreshToken: {
+            type: String,
+            default: "",
+        },
     },
-    email: {
-        type: String,
-        required: [true, 'Email is required'],
-        unique: true,
-        lowercase: true,
-        trim: true,
-    },
-    password: {
-        type: String,
-        required: [true, 'Password is required'],
-        minlength: 6,
-    },
-    role: {
-        type: String,
-        enum: ['Staff', 'Manager', 'Admin'],
-        default: 'Staff',
-        required: true,
-    },
-    refreshToken: {
-        type: String,
-        default: '',
-    },
-}, {
-    timestamps: true,
-});
+    {
+        timestamps: true,
+    }
+);
 
 // Hash the password before saving if it's modified
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+    if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10);
     }
     next();
@@ -57,7 +60,7 @@ userSchema.methods.generateAccessToken = function () {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRY || '15m',
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "15m",
         }
     );
 };
@@ -70,9 +73,9 @@ userSchema.methods.generateRefreshToken = function () {
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRY || '7d',
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d",
         }
     );
 };
 
-export const User = mongoose.model('User', userSchema);
+export const User = mongoose.model("User", userSchema);
