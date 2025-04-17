@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import axios from "axios";
+import { NavLink, useNavigate } from "react-router-dom";
+import api from "../../api/api";
+import { toast } from "react-toastify";
 
 const Profile = () => {
     const [darkMode, setDarkMode] = useState(false);
-    const [user, setUser] = useState({ name: "", email: "", role: "" });
-    const [editMode, setEditMode] = useState(false);
+    const [user, setUser] = useState(null);
     const [formData, setFormData] = useState({ name: "", email: "", role: "" });
+    const [editMode, setEditMode] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const observer = new MutationObserver(() => {
@@ -17,22 +23,41 @@ const Profile = () => {
             attributes: true,
             attributeFilter: ["class"],
         });
-        setDarkMode(document.body.classList.contains("dark-mode"));
 
+        setDarkMode(document.body.classList.contains("dark-mode"));
         return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
-        axios
-            .get("/api/user/me", { withCredentials: true })
-            .then((res) => {
-                setUser(res.data.user);
-                setFormData(res.data.user);
-            })
-            .catch((err) => {
+        const fetchUser = async () => {
+            try {
+                setLoading(true);
+                const res = await api.get("/api/v1/users/me", {
+                    withCredentials: true,
+                });
+
+                const userData = res?.data?.data?.user;
+
+                if (userData) {
+                    setUser(userData);
+                    setFormData({
+                        name: userData.name || "",
+                        email: userData.email || "",
+                        role: userData.role || "",
+                    });
+                    setError(null);
+                } else {
+                    throw new Error("User data missing");
+                }
+            } catch (err) {
                 console.error(err);
-                alert("Failed to fetch user data");
-            });
+                setError("Failed to fetch user data");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
     }, []);
 
     const handleEditToggle = () => setEditMode(!editMode);
@@ -41,21 +66,75 @@ const Profile = () => {
 
     const handleUpdate = async () => {
         if (!formData.name || !formData.email) {
-            alert("Name and email cannot be empty");
+            toast.error("Name and email cannot be empty");
             return;
         }
+
         try {
-            const res = await axios.put("/api/user/update", formData, {
-                withCredentials: true,
-            });
-            setUser(res.data.user);
+            setIsUpdating(true);
+            const res = await api.put(
+                "/api/v1/users/update-account",
+                formData,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            const updatedUser = res?.data?.data?.user || res?.data?.data;
+            setUser(updatedUser);
             setEditMode(false);
-            alert("Profile updated!");
+            toast.success("Profile updated!");
         } catch (err) {
             console.error(err);
-            alert("Failed to update profile");
+            toast.error("Failed to update profile");
+        } finally {
+            setIsUpdating(false);
         }
     };
+
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete your account?"
+        );
+        if (!confirmDelete) return;
+    
+        try {
+            await api.delete(`/api/v1/users/delete-account/${user._id}`, {
+                withCredentials: true,
+            });
+            toast.success("Account deleted successfully");
+            navigate("/")
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to delete account");
+        }
+    };
+    
+    if (loading) {
+        return (
+            <div className="text-center pt-5">
+                <h4>Loading...</h4>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center pt-5">
+                <div className="alert alert-danger">{error}</div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="text-center pt-5">
+                <div className="alert alert-warning">
+                    No user data available.
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container-db pb-3">
@@ -64,7 +143,7 @@ const Profile = () => {
                 style={{ maxWidth: "1000px" }}
             >
                 <h2
-                    className={`text-center fw-bold mb-4 ${darkMode ? "text-white" : "text-dark"} animate-in`}
+                    className={`text-center fw-bold mb-4 ${darkMode ? "text-white" : "text-dark"}`}
                 >
                     👤 Profile Details
                 </h2>
@@ -125,21 +204,11 @@ const Profile = () => {
                         >
                             Role
                         </label>
-                        {editMode ? (
-                            <input
-                                type="text"
-                                name="role"
-                                className="form-control"
-                                value={formData.role}
-                                onChange={handleChange}
-                            />
-                        ) : (
-                            <div
-                                className={`form-control-plaintext ${darkMode ? "text-white" : "text-dark"}`}
-                            >
-                                {user.role || "N/A"}
-                            </div>
-                        )}
+                        <div
+                            className={`form-control-plaintext ${darkMode ? "text-white" : "text-dark"}`}
+                        >
+                            {user.role || "N/A"}
+                        </div>
                     </div>
 
                     {/* Buttons */}
@@ -149,8 +218,9 @@ const Profile = () => {
                                 <button
                                     className="btn btn-success me-2 w-50"
                                     onClick={handleUpdate}
+                                    disabled={isUpdating}
                                 >
-                                    💾 Save
+                                    {isUpdating ? "Saving..." : "💾 Save"}
                                 </button>
                                 <button
                                     className="btn btn-secondary w-50"
@@ -171,13 +241,19 @@ const Profile = () => {
 
                     <hr className={darkMode ? "border-light" : ""} />
 
-                    {/* Change Password */}
-                    <div className="text-center animate-in">
+                    {/* Actions */}
+                    <div className="text-end animate-in">
                         <NavLink to="/change-password">
-                            <button className="btn btn-warning">
+                            <button className="btn btn-warning me-2">
                                 🔒 Change Password
                             </button>
                         </NavLink>
+                        <button
+                            className="btn btn-danger"
+                            onClick={handleDelete}
+                        >
+                            🗑️ Delete Account
+                        </button>
                     </div>
                 </div>
             </div>

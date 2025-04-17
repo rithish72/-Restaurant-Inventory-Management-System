@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
+import api from "../../api/api";
 import "./Dashboard.css";
 
 import {
@@ -25,19 +25,23 @@ ChartJS.register(
     ArcElement
 );
 
-const Dashboard = () => {
-    const [inventoryStats, setInventoryStats] = useState({
-        totalItems: 0,
-        lowStockItems: [],
-        recentOrders: [],
-        topSuppliers: [],
-    });
+const StatCard = ({ title, value, bg }) => (
+    <div className="col-md-4 mb-3">
+        <div className={`card text-white ${bg} h-100`}>
+            <div className="card-body d-flex flex-column justify-content-center align-items-center">
+                <h5 className="card-title">{title}</h5>
+                <p className="card-text fs-2 m-0">{value}</p>
+            </div>
+        </div>
+    </div>
+);
 
+const Dashboard = () => {
+    const [inventoryStats, setInventoryStats] = useState(null);
     const [darkMode, setDarkMode] = useState(false);
 
     useEffect(() => {
-        axios
-            .get("http://localhost:5000/api/dashboard")
+        api.get("/api/v1/dashboard")
             .then((res) => setInventoryStats(res.data))
             .catch(console.error);
 
@@ -54,44 +58,44 @@ const Dashboard = () => {
         return () => observer.disconnect();
     }, []);
 
-    const { totalItems, lowStockItems, recentOrders, topSuppliers } =
-        inventoryStats;
-
     const chartTextColor = darkMode ? "#fff" : "#000";
     const chartGridColor = darkMode ? "#aaa" : "#ccc";
 
-    const barData = useMemo(
-        () => ({
-            labels: lowStockItems.map((item) => item.name),
+    const barData = useMemo(() => {
+        if (!inventoryStats) return {};
+        return {
+            labels: inventoryStats.lowStockItems.map((item) => item.name),
             datasets: [
                 {
                     label: "Quantity",
-                    data: lowStockItems.map((item) => item.quantity),
+                    data: inventoryStats.lowStockItems.map(
+                        (item) => item.quantity
+                    ),
                     backgroundColor: "#f39c12",
                 },
             ],
-        }),
-        [lowStockItems]
-    );
+        };
+    }, [inventoryStats]);
 
-    const pieData = useMemo(
-        () => ({
-            labels: topSuppliers.map((s) => s.name),
+    const pieData = useMemo(() => {
+        if (!inventoryStats) return {};
+        return {
+            labels: inventoryStats.topSuppliers.map((s) => s.name),
             datasets: [
                 {
                     label: "Orders",
-                    data: topSuppliers.map((s) => s.totalOrders),
+                    data: inventoryStats.topSuppliers.map((s) => s.totalOrders),
                     backgroundColor: [
                         "#0088FE",
                         "#00C49F",
                         "#FFBB28",
                         "#FF8042",
+                        "#A28EFF",
                     ],
                 },
             ],
-        }),
-        [topSuppliers]
-    );
+        };
+    }, [inventoryStats]);
 
     const barOptions = useMemo(
         () => ({
@@ -126,6 +130,19 @@ const Dashboard = () => {
         [chartTextColor]
     );
 
+    if (!inventoryStats) {
+        return (
+            <div className="container-db text-center py-5">
+                <p className={darkMode ? "text-white" : "text-dark"}>
+                    Loading Dashboard...
+                </p>
+            </div>
+        );
+    }
+
+    const { totalItems, lowStockItems, recentOrders, topSuppliers } =
+        inventoryStats;
+
     return (
         <div className="container-db">
             <div
@@ -138,44 +155,34 @@ const Dashboard = () => {
                 </h2>
 
                 <div className="row animate-in">
-                    {[
-                        {
-                            title: "Total Inventory Items",
-                            value: totalItems,
-                            bg: "bg-success",
-                        },
-                        {
-                            title: "Low Stock Items",
-                            value: lowStockItems.length,
-                            bg: "bg-warning",
-                        },
-                    ].map((card, i) => (
-                        <div className="col-md-4 animate-in" key={i}>
-                            <div className={`card text-white ${card.bg} mb-3`}>
-                                <div className="card-body">
-                                    <h5 className="card-title">{card.title}</h5>
-                                    <p className="card-text fs-2">
-                                        {card.value}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    <div className="col-md-4 animate-in">
-                        <div className="card text-white bg-info mb-3">
+                    <StatCard
+                        title="Total Inventory Items"
+                        value={totalItems}
+                        bg="bg-success"
+                    />
+                    <StatCard
+                        title="Low Stock Items"
+                        value={lowStockItems.length}
+                        bg="bg-warning"
+                    />
+                    <div className="col-md-4 mb-3">
+                        <div className="card text-white bg-info h-100">
                             <div className="card-body">
-                                <h5 className="card-title">Recent Orders</h5>
-                                <ul className="list-group list-group-flush">
-                                    {recentOrders.map((order, idx) => (
-                                        <li
-                                            key={idx}
-                                            className="list-group-item"
-                                        >
-                                            {order.name} - {order.quantity}
-                                        </li>
-                                    ))}
-                                </ul>
+                                <h5 className="card-title">📝 Recent Orders</h5>
+                                {recentOrders.length > 0 ? (
+                                    <ul className="list-group list-group-flush">
+                                        {recentOrders.map((order, idx) => (
+                                            <li
+                                                key={idx}
+                                                className="list-group-item"
+                                            >
+                                                {order.name} - {order.quantity}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="mt-2">No recent orders</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -187,23 +194,28 @@ const Dashboard = () => {
                     >
                         🚚 Top Suppliers
                     </h4>
-                    <ul className="list-group">
-                        {topSuppliers.map((supplier, idx) => (
-                            <li key={idx} className="list-group-item">
-                                {supplier.name} - {supplier.totalOrders} orders
-                            </li>
-                        ))}
-                    </ul>
+                    {topSuppliers.length > 0 ? (
+                        <ul className="list-group">
+                            {topSuppliers.map((supplier, idx) => (
+                                <li key={idx} className="list-group-item">
+                                    {supplier.name} - {supplier.totalOrders}{" "}
+                                    orders
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="mt-2">No supplier data</p>
+                    )}
                 </div>
 
                 <div className="row mt-5 animate-in">
-                    <div className="col animate-in">
+                    <div className="col-lg-6 col-sm-12 mb-4">
                         <h5 className={darkMode ? "text-white" : "text-dark"}>
                             📉 Low Stock Items
                         </h5>
                         <Bar data={barData} options={barOptions} />
                     </div>
-                    <div className="col animate-in pie-chart">
+                    <div className="col-lg-6 col-sm-12 mb-4">
                         <h5 className={darkMode ? "text-white" : "text-dark"}>
                             🥧 Top Suppliers
                         </h5>

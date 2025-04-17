@@ -103,7 +103,7 @@ const InventoryList = () => {
                             className={`table table-bordered table-hover ${darkMode ? "table-dark text-light" : ""}`}
                         >
                             <thead
-                                className={`${darkMode ? "table-tertiary" : "table-primary"}`}
+                                className={`${darkMode ? "table-secondary" : "table-primary"}`}
                             >
                                 <tr>
                                     <th>#</th>

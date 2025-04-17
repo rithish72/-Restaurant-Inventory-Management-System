@@ -24,7 +24,9 @@ const Suppliers = () => {
 
     const fetchSuppliers = async () => {
         try {
-            const { data } = await api.get("/api/v1/suppliers/get-all-suppliers");
+            const { data } = await api.get(
+                "/api/v1/suppliers/get-all-suppliers"
+            );
             setSuppliers(data?.data || []);
         } catch (error) {
             console.error("Error fetching suppliers:", error.message);
@@ -39,7 +41,9 @@ const Suppliers = () => {
     }, []);
 
     const handleDeleteSupplier = async (supplierId) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this supplier?");
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this supplier?"
+        );
         if (!confirmDelete) return;
 
         try {
@@ -49,15 +53,20 @@ const Suppliers = () => {
         } catch (error) {
             console.error("Failed to delete supplier:", error);
             toast.error(
-                error.response?.data?.message || "Failed to delete supplier. Please try again."
+                error.response?.data?.message ||
+                    "Failed to delete supplier. Please try again."
             );
         }
     };
 
     return (
         <div className="container-db">
-            <div className={`dashboard-container ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}>
-                <h2 className={`text-center mb-4 fw-bold ${darkMode ? "text-white" : "text-dark"} animate-in`}>
+            <div
+                className={`dashboard-container ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}
+            >
+                <h2
+                    className={`text-center mb-4 fw-bold ${darkMode ? "text-white" : "text-dark"} animate-in`}
+                >
                     🧾 Suppliers List
                 </h2>
 
@@ -76,16 +85,27 @@ const Suppliers = () => {
                 <div className="text-center">
                     {loading ? (
                         <div className="text-center my-5">
-                            <div className={`spinner-border ${darkMode ? "text-light" : ""}`} role="status">
-                                <span className="visually-hidden">Loading...</span>
+                            <div
+                                className={`spinner-border ${darkMode ? "text-light" : ""}`}
+                                role="status"
+                            >
+                                <span className="visually-hidden">
+                                    Loading...
+                                </span>
                             </div>
                         </div>
                     ) : suppliers.length === 0 ? (
-                        <div className="alert alert-warning text-center">No suppliers found.</div>
+                        <div className="alert alert-warning text-center">
+                            No suppliers found.
+                        </div>
                     ) : (
                         <div className="table-responsive">
-                            <table className={`table table-bordered table-hover rounded-3 overflow-hidden ${darkMode ? "table-dark text-light" : ""}`}>
-                                <thead className={`${darkMode ? "bg-secondary text-white" : "table-primary"}`}>
+                            <table
+                                className={`table table-bordered table-hover rounded-3 overflow-hidden ${darkMode ? "table-dark text-light" : ""}`}
+                            >
+                                <thead
+                                    className={`${darkMode ? "table-secondary" : "table-primary"}`}
+                                >
                                     <tr>
                                         <th>#</th>
                                         <th>Name</th>
@@ -106,17 +126,33 @@ const Suppliers = () => {
                                             <td>{supplier.phone}</td>
                                             <td>{supplier.email}</td>
                                             <td>{supplier.address}</td>
-                                            <td>{Array.isArray(supplier.itemsSupplied) ? supplier.itemsSupplied.join(", ") : supplier.itemsSupplied}</td>
+                                            <td>
+                                                {Array.isArray(
+                                                    supplier.itemsSupplied
+                                                )
+                                                    ? supplier.itemsSupplied.join(
+                                                          ", "
+                                                      )
+                                                    : supplier.itemsSupplied}
+                                            </td>
                                             <td className="d-flex flex-wrap gap-2 justify-content-center">
                                                 <button
                                                     className="btn btn-sm btn-primary"
-                                                    onClick={() => navigate(`/inventory_list/update-item/${supplier._id}`)}
+                                                    onClick={() =>
+                                                        navigate(
+                                                            `/suppliers/update-supplier/${supplier._id}`
+                                                        )
+                                                    }
                                                 >
                                                     Edit
                                                 </button>
                                                 <button
                                                     className="btn btn-sm btn-danger"
-                                                    onClick={() => handleDeleteSupplier(supplier._id)}
+                                                    onClick={() =>
+                                                        handleDeleteSupplier(
+                                                            supplier._id
+                                                        )
+                                                    }
                                                 >
                                                     Delete
                                                 </button>

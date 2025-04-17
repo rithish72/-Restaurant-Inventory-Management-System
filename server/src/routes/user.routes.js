@@ -28,7 +28,7 @@ router.post("/change-password", verifyJWT, changeCurrentPassword);
 router.put("/update-account", verifyJWT, updateAccountDetails);
 
 // Admin Routes
-router.get("/all", verifyJWT, authorizeRoles("admin"), getAllUsers);
-router.delete("/:id", verifyJWT, authorizeRoles("admin"), deleteUser);
+router.get("/all", verifyJWT, authorizeRoles("Admin"), getAllUsers);
+router.delete("/delete-account/:id", verifyJWT, deleteUser);
 
 export default router;

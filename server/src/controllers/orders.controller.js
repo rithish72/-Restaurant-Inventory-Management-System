@@ -6,15 +6,14 @@ import { Supplier } from "../models/supplier.models.js";
 import { Inventory } from "../models/inventory.models.js";
 import mongoose from "mongoose";
 
-// Helper to find Supplier
-const getSupplierDoc = async (supplierName) => {
-    const supplier = await Supplier.findOne({ name: supplierName });
-    if (!supplier)
-        throw new ApiError(404, `Supplier "${supplierName}" not found.`);
+// Helper: Fetch supplier document
+const getSupplierDoc = async (name) => {
+    const supplier = await Supplier.findOne({ name });
+    if (!supplier) throw new ApiError(404, `Supplier "${name}" not found.`);
     return supplier;
 };
 
-// Helper to populate item references
+// Helper: Populate item references from names
 const populateItems = async (items) => {
     return Promise.all(
         items.map(async ({ item, quantity }) => {
@@ -30,40 +29,90 @@ const populateItems = async (items) => {
     );
 };
 
-// Get all orders
-const getAllOrders = asyncHandler(async (req, res) => {
-    const orders = await Orders.find()
-        .populate("supplier", "name contactPerson email")
-        .populate("items.item", "name unit price")
-        .sort({ createdAt: -1 });
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, orders, "All orders fetched successfully"));
+// Helper: Format order response
+const formatOrder = (order) => ({
+    _id: order._id,
+    orderNumber: order.orderNumber,
+    items: order.items.map(({ item, quantity, _id }) => ({
+        _id,
+        quantity,
+        item: {
+            _id: item?._id,
+            unit: item?.unit,
+        },
+    })),
+    supplier: {
+        _id: order.supplier?._id,
+        name: order.supplier?.name,
+        contactPerson: order.supplier?.contactPerson,
+        email: order.supplier?.email,
+    },
+    status: order.status,
+    deliveryDate: order.deliveryDate,
+    notes: order.notes,
+    orderDate: order.orderDate,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+    __v: order.__v,
 });
 
-// Get specific order
+// GET all orders
+const getAllOrders = asyncHandler(async (_req, res) => {
+    const orders = await Orders.find()
+        .populate("supplier", "name contactPerson email")
+        .populate("items.item", "itemName unit")
+        .sort({ createdAt: -1 });
+
+    const formattedOrders = orders.map((order) => ({
+        _id: order._id,
+        orderNumber: order.orderNumber,
+        items: order.items.map(({ item, quantity, _id }) => ({
+            _id,
+            quantity,
+            item: {
+                itemName: item?.itemName,  // return itemName instead of _id
+                unit: item?.unit,
+            },
+        })),
+        supplier: {
+            _id: order.supplier?._id,
+            name: order.supplier?.name,
+            contactPerson: order.supplier?.contactPerson,
+            email: order.supplier?.email,
+        },
+        status: order.status,
+        deliveryDate: order.deliveryDate,
+        notes: order.notes,
+        orderDate: order.orderDate,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        __v: order.__v,
+    }));
+
+    return res.status(200).json(new ApiResponse(200, formattedOrders, "Orders fetched"));
+});
+
+
+// GET single order
 const getCurrentOrder = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-        throw new ApiError(400, "A valid Order ID is required");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Order ID");
     }
 
-    const existingOrder = await Orders.findById(id)
-        .populate("supplier", "name")
-        .populate("items.item", "itemName");
+    const order = await Orders.findById(id)
+        .populate("supplier", "name contactPerson email")
+        .populate("items.item", "unit");
 
-    if (!existingOrder) throw new ApiError(404, "Order not found");
+    if (!order) throw new ApiError(404, "Order not found");
 
     return res
         .status(200)
-        .json(
-            new ApiResponse(200, existingOrder, "Order retrieved successfully")
-        );
+        .json(new ApiResponse(200, formatOrder(order), "Order fetched"));
 });
 
-// Create new order
+// POST create order
 const addOrders = asyncHandler(async (req, res) => {
     const { orderNumber, items, supplier, status, deliveryDate, notes } =
         req.body;
@@ -94,22 +143,39 @@ const addOrders = asyncHandler(async (req, res) => {
         supplier: supplierDoc._id,
         status,
         deliveryDate: new Date(deliveryDate),
-        notes,
+        notes: notes?.trim() || "",
     });
+
+    const populatedOrder = await Orders.findById(newOrder._id)
+        .populate("supplier", "name contactPerson email")
+        .populate("items.item", "unit");
 
     return res
         .status(201)
-        .json(new ApiResponse(201, newOrder, "Order created successfully"));
+        .json(
+            new ApiResponse(201, formatOrder(populatedOrder), "Order created")
+        );
 });
 
-// Update existing order
+// PUT update order
 const updateOrders = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { orderNumber, items, supplier, status, deliveryDate, notes } =
         req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id))
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new ApiError(400, "Invalid Order ID");
+    }
+
+    if (
+        !orderNumber ||
+        !Array.isArray(items) ||
+        !supplier ||
+        !status ||
+        !deliveryDate
+    ) {
+        throw new ApiError(400, "All required fields must be provided.");
+    }
 
     const supplierDoc = await getSupplierDoc(supplier);
     const populatedItems = await populateItems(items);
@@ -122,30 +188,32 @@ const updateOrders = asyncHandler(async (req, res) => {
             supplier: supplierDoc._id,
             status,
             deliveryDate: new Date(deliveryDate),
-            notes,
+            notes: notes?.trim() || "",
         },
         { new: true }
-    );
+    )
+        .populate("supplier", "name contactPerson email")
+        .populate("items.item", "unit");
 
     if (!updatedOrder) throw new ApiError(404, "Order not found");
 
     return res
         .status(200)
-        .json(new ApiResponse(200, updatedOrder, "Order updated successfully"));
+        .json(new ApiResponse(200, formatOrder(updatedOrder), "Order updated"));
 });
 
-// Delete order
+// DELETE order
 const deleteOrder = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id))
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new ApiError(400, "Invalid Order ID");
+    }
 
-    const deletedOrder = await Orders.findByIdAndDelete(id);
-    if (!deletedOrder) throw new ApiError(404, "Order not found");
+    const deleted = await Orders.findByIdAndDelete(id);
+    if (!deleted) throw new ApiError(404, "Order not found");
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, deletedOrder, "Order deleted successfully"));
+    return res.status(200).json(new ApiResponse(200, deleted, "Order deleted"));
 });
 
-export { getAllOrders, addOrders, updateOrders, deleteOrder, getCurrentOrder };
+export { getAllOrders, getCurrentOrder, addOrders, updateOrders, deleteOrder };

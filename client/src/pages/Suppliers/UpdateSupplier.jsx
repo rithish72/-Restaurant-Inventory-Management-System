@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Suppliers.css";
+import { toast } from "react-toastify";
 
 const UpdateSupplier = () => {
     const [darkMode, setDarkMode] = useState(false);
@@ -17,7 +18,7 @@ const UpdateSupplier = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [isFormValid, setIsFormValid] = useState(true); 
+    const [isFormValid, setIsFormValid] = useState(true);
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -36,14 +37,13 @@ const UpdateSupplier = () => {
         return () => observer.disconnect();
     }, []);
 
-    // Fetch Supplier if editing
     useEffect(() => {
         if (id) {
             const fetchSupplier = async () => {
                 setLoading(true);
                 try {
                     const response = await api.get(
-                        `/api/v1/Suppliers/get-Supplier/${id}`
+                        `/api/v1/suppliers/get-supplier/${id}`
                     );
                     if (response.data?.data) {
                         setUpdatedSupplier({ ...response.data.data, _id: id });
@@ -63,158 +63,171 @@ const UpdateSupplier = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setUpdatedSupplier((prev) => ({ ...prev, [name]: value }));
-        validateForm();
     };
 
     const validateForm = () => {
-        const { itemName, category, quantity, unit, threshold } =
+        const { name, contactPerson, phone, email, address, itemsSupplied } =
             updatedSupplier;
-        setIsFormValid(itemName && category && quantity && unit && threshold);
+        return (
+            name && contactPerson && phone && email && address && itemsSupplied
+        );
     };
 
-    // Submit form
     const handleSubmit = async () => {
-        if (!isFormValid) {
+        if (!validateForm()) {
+            setIsFormValid(false);
             alert("Please fill all fields correctly.");
             return;
         }
 
-        const { itemName, category, quantity, unit, threshold, _id } =
-            updatedSupplier;
+        const {
+            name,
+            contactPerson,
+            phone,
+            email,
+            address,
+            itemsSupplied,
+            _id,
+        } = updatedSupplier;
 
         setLoading(true);
         setError(null);
+
         try {
             if (_id) {
-                await api.put(
-                    `/api/v1/inventory/update-inventory-item/${_id}`,
-                    {
-                        itemName,
-                        category,
-                        quantity: Number(quantity),
-                        unit,
-                        threshold: Number(threshold),
-                    }
-                );
-                alert("Item updated successfully!");
-            } else {
-                await api.post("/api/v1/inventory/add-inventory-item", {
-                    itemName,
-                    category,
-                    quantity: Number(quantity),
-                    unit,
-                    threshold: Number(threshold),
+                await api.patch(`/api/v1/suppliers/update-supplier/${_id}`, {
+                    supplier: name,
+                    phoneNumber: phone,
+                    email,
+                    address,
+                    itemsSupplied,
                 });
-                alert("Item added successfully!");
+                toast.success("Supplier updated successfully!");
+            } else {
+                await api.post("/api/v1/suppliers/add-supplier", {
+                    supplier: name,
+                    phoneNumber: phone,
+                    email,
+                    address,
+                    itemsSupplied,
+                });
+                toast.success("Supplier added successfully!");
             }
-            navigate("/inventory_list");
+            navigate("/suppliers");
         } catch (error) {
             console.error(
-                _id ? "Error updating item:" : "Error adding item:",
+                _id ? "Error updating supplier:" : "Error adding supplier:",
                 error
             );
-            setError(_id ? "Failed to update item" : "Failed to add item");
+            setError(
+                _id ? "Failed to update supplier" : "Failed to add supplier"
+            );
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="container-db">
+        <div className="dashboard-container mt-0">
             <div
-                className={`dashboard-container mt-4 ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}
+                className={`dashboard-container ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}
             >
-                <h4 className="fw-bold mb-4 text-center">
-                    Update Inventory Item
-                </h4>
+                <h5 className="mb-3 fw-semibold animate-in">
+                    {updatedSupplier._id ? "Update Supplier" : "Add Supplier"}
+                </h5>
 
-                {loading && <div className="loading-spinner">Loading...</div>}
-                {error && <div className="alert alert-danger">{error}</div>}
+                {error && <div className="alert">{error}</div>}
 
-                <div className="row g-3">
-                    <div className="col-md-6">
+                <div className="row g-3 animate-in">
+                    <div className="col-md-4">
                         <label className="form-label fw-semibold">
-                            Item Name
+                            Supplier
                         </label>
                         <input
                             type="text"
-                            name="itemName"
                             className="form-control"
-                            placeholder="e.g. Tomato"
-                            value={updatedSupplier.itemName}
+                            name="name"
+                            placeholder="Supplier"
+                            value={updatedSupplier.name}
                             onChange={handleInputChange}
                         />
                     </div>
-
-                    <div className="col-md-6">
-                        <label className="form-label fw-semibold">
-                            Category
-                        </label>
-                        <select
-                            name="category"
-                            className="form-select"
-                            value={updatedSupplier.category}
-                            onChange={handleInputChange}
-                        >
-                            <option value="">Select Category</option>
-                            <option value="Vegetables">Vegetables</option>
-                            <option value="Fruits">Fruits</option>
-                            <option value="Dairy">Dairy</option>
-                            <option value="Meat">Meat</option>
-                            <option value="Beverages">Beverages</option>
-                            <option value="Bakery">Bakery</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-
                     <div className="col-md-4">
                         <label className="form-label fw-semibold">
-                            Quantity
+                            Contact Person
                         </label>
-                        <input
-                            type="number"
-                            name="quantity"
-                            className="form-control"
-                            placeholder="e.g. 10"
-                            value={updatedSupplier.quantity}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">Unit</label>
                         <input
                             type="text"
-                            name="unit"
                             className="form-control"
-                            placeholder="e.g. kg, L, pcs"
-                            value={updatedSupplier.unit}
+                            name="contactPerson"
+                            placeholder="Contact Person"
+                            value={updatedSupplier.contactPerson}
                             onChange={handleInputChange}
                         />
                     </div>
-
                     <div className="col-md-4">
+                        <label className="form-label fw-semibold">Phone</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="phone"
+                            placeholder="Phone Number"
+                            value={updatedSupplier.phone}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="col-md-6">
+                        <label className="form-label fw-semibold">Email</label>
+                        <input
+                            type="email"
+                            className="form-control"
+                            name="email"
+                            placeholder="Email"
+                            value={updatedSupplier.email}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="col-md-6">
                         <label className="form-label fw-semibold">
-                            Threshold
+                            Address
                         </label>
                         <input
-                            type="number"
-                            name="threshold"
+                            type="text"
                             className="form-control"
-                            placeholder="e.g. 5"
-                            value={updatedSupplier.threshold}
+                            name="address"
+                            placeholder="Address"
+                            value={updatedSupplier.address}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="col-md-12">
+                        <label className="form-label fw-semibold">
+                            Items Supplied (comma separated)
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="itemsSupplied"
+                            placeholder="e.g. Tomatoes, Milk, Bread"
+                            value={updatedSupplier.itemsSupplied}
                             onChange={handleInputChange}
                         />
                     </div>
                 </div>
 
-                <button
-                    className="btn btn-success mt-4 w-100 fw-bold"
-                    onClick={handleSubmit}
-                    disabled={loading || !isFormValid}
-                >
-                    {loading ? "Updating..." : "Update Item"}
-                </button>
+                <div className="animate-in">
+                    <button
+                        className="btn mt-4 w-100 fw-bold btn-submit"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                    >
+                        {loading
+                            ? "Processing..."
+                            : updatedSupplier._id
+                              ? "Update Supplier"
+                              : "Add Supplier"}
+                    </button>
+                </div>
             </div>
         </div>
     );

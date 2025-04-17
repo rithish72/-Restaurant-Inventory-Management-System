@@ -11,8 +11,8 @@ const router = express.Router();
 
 router.get("/get-all-orders", verifyJWT, getAllOrders);
 router.get("/get-order/:id", verifyJWT, getCurrentOrder);
-router.post("/add-orders", verifyJWT, addOrders);
-router.patch("/update-orders/:id", verifyJWT, updateOrders);
-router.delete("/delete-orders/:id", verifyJWT, deleteOrder);
+router.post("/add-order", verifyJWT, addOrders);
+router.patch("/update-order/:id", verifyJWT, updateOrders);
+router.delete("/delete-order/:id", verifyJWT, deleteOrder);
 
 export default router;

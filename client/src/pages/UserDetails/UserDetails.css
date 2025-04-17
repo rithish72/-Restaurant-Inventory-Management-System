@@ -1,0 +1,33 @@
+.admin-users-container {
+    padding: 2rem;
+}
+
+.dark-bg {
+    background-color: #121212;
+    color: #fff;
+}
+
+.light-bg {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(15px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

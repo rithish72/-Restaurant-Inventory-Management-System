@@ -55,14 +55,14 @@ const AddSupplier = () => {
 
         try {
             const formattedData = {
-                supplier: name, // Renaming 'name' to 'supplier'
+                supplier: name,
                 contactPerson,
-                phoneNumber: phone, // Renaming 'phone' to 'phoneNumber'
+                phoneNumber: phone,
                 email,
                 address,
                 itemsSupplied: itemsSupplied
                     .split(",")
-                    .map((item) => item.trim()), // Handling multiple items
+                    .map((item) => item.trim()),
             };
 
             await api.post("/api/v1/suppliers/add-supplier", formattedData);

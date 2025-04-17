@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Orders.css";
 import api from "../../api/api.js";
@@ -10,13 +10,16 @@ const AddOrder = () => {
     const [newOrder, setNewOrder] = useState({
         orderNumber: "",
         items: "",
+        quantities: "",
         supplier: "",
         status: "",
         deliveryDate: "",
         notes: "",
     });
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const orderNumberRef = useRef(null);
 
     useEffect(() => {
         const observer = new MutationObserver(() => {
@@ -27,64 +30,106 @@ const AddOrder = () => {
             attributes: true,
             attributeFilter: ["class"],
         });
+
         setDarkMode(document.body.classList.contains("dark-mode"));
 
         return () => observer.disconnect();
     }, []);
 
+    useEffect(() => {
+        if (orderNumberRef.current) {
+            orderNumberRef.current.focus();
+        }
+    }, []);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewOrder({ ...newOrder, [name]: value });
+        setNewOrder((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
     const handleAddOrder = async () => {
-        const { orderNumber, items, supplier, status, deliveryDate, notes } =
-            newOrder;
+        const orderItems = newOrder.items
+            .split(",")
+            .map((item) => item.trim())
+            .filter((item) => item);
 
-        if (
-            !orderNumber.trim() ||
-            !items.trim() ||
-            !supplier.trim() ||
-            !status.trim() ||
-            !deliveryDate ||
-            !notes.trim()
-        ) {
-            return toast.error("Please fill in all fields");
+        const quantities = newOrder.quantities
+            .split(",")
+            .map((quantity) => quantity.trim())
+            .filter((quantity) => quantity);
+
+        if (orderItems.length !== quantities.length) {
+            return toast.error("Items and quantities must match.");
         }
 
+        const formattedItems = orderItems.map((item, index) => ({
+            item: item,
+            quantity: quantities[index],
+        }));
+
+        const trimmedOrder = {
+            orderNumber: newOrder.orderNumber.trim(),
+            items: formattedItems,
+            supplier: newOrder.supplier.trim(),
+            status: newOrder.status.trim(),
+            deliveryDate: newOrder.deliveryDate,
+        };
+
+        if (newOrder.notes.trim()) {
+            trimmedOrder.notes = newOrder.notes.trim();
+        }
+
+        const { orderNumber, items, supplier, status, deliveryDate } =
+            trimmedOrder;
+
+        if (
+            !orderNumber ||
+            !items.length ||
+            !supplier ||
+            !status ||
+            !deliveryDate
+        ) {
+            return toast.error("Please fill in all required fields.");
+        }
+
+        setLoading(true);
         try {
-            await api.post("/api/v1/orders/add-orders", newOrder);
+            await api.post("/api/v1/orders/add-order", trimmedOrder);
 
             toast.success("Order added successfully!");
 
             setNewOrder({
                 orderNumber: "",
                 items: "",
+                quantities: "",
                 supplier: "",
                 status: "",
                 deliveryDate: "",
                 notes: "",
             });
 
-            navigate("/order");
-
+            navigate("/orders");
         } catch (error) {
             console.error("Error adding order:", error);
-
             const errorMsg =
                 error.response?.data?.message ||
                 "Failed to add order. Please try again.";
             toast.error(errorMsg);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div>
+        <div className="dashboard-container mt-0">
             <div
-                className={`card mb-5 p-4 ${darkMode ? "dark-card-bg" : "card-bg"} animate-in`}
+                className={`dashboard-container ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}
             >
-                <h5 className="mb-3 fw-semibold">➕ Add New Order</h5>
-                <div className="row g-3">
+                <h5 className="mb-3 fw-semibold animate-in">Add New Order</h5>
+                <div className="row g-3 animate-in">
                     <div className="col-md-4">
                         <label className="form-label fw-semibold">
                             Order Number
@@ -96,6 +141,7 @@ const AddOrder = () => {
                             placeholder="e.g. ORD-1001"
                             value={newOrder.orderNumber}
                             onChange={handleInputChange}
+                            ref={orderNumberRef}
                         />
                     </div>
                     <div className="col-md-4">
@@ -108,6 +154,19 @@ const AddOrder = () => {
                             name="items"
                             placeholder="e.g. Tomato, Milk"
                             value={newOrder.items}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="col-md-4">
+                        <label className="form-label fw-semibold">
+                            Quantities (comma separated)
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="quantities"
+                            placeholder="e.g. 10, 5"
+                            value={newOrder.quantities}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -151,13 +210,15 @@ const AddOrder = () => {
                         />
                     </div>
                     <div className="col-md-4">
-                        <label className="form-label fw-semibold">Notes</label>
+                        <label className="form-label fw-semibold">
+                            Notes <span className="text-muted">(Optional)</span>
+                        </label>
                         <textarea
                             className="form-control"
                             name="notes"
                             rows="1"
                             placeholder="Additional notes"
-                            value={newOrder.notes || ""}
+                            value={newOrder.notes}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -165,12 +226,13 @@ const AddOrder = () => {
                 <button
                     className="btn btn-success mt-4 w-100 fw-bold"
                     onClick={handleAddOrder}
+                    disabled={loading}
                 >
-                    ➕ Add Order
+                    {loading ? "Adding..." : "Add Order"}
                 </button>
             </div>
         </div>
     );
 };
 
-export default AddOrder
+export default AddOrder;

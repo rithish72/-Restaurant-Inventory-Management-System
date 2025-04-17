@@ -211,11 +211,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "User not authenticated");
     }
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(200, req.user, "Current user fetched successfully")
-        );
+    return res.status(200).json(
+        new ApiResponse(200, { user: req.user }, "Current user fetched successfully")
+    );    
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -261,6 +259,8 @@ const getAllUsers = asyncHandler(async (req, res) => {
 const deleteUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    console.log(`Attempting to delete user with ID: ${id}`);
+
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
         throw new ApiError(400, "Invalid or missing user ID");
     }
@@ -271,8 +271,16 @@ const deleteUser = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found or already deleted");
     }
 
+    const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+    };
+
     return res
         .status(200)
+        .clearCookie("accessToken", cookieOptions)
+        .clearCookie("refreshToken", cookieOptions)
         .json(new ApiResponse(200, {}, "User deleted successfully"));
 });
 

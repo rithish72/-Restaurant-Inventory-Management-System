@@ -219,7 +219,6 @@ const Register = () => {
                                 <option value="">Select One</option>
                                 <option value="Staff">Staff</option>
                                 <option value="Manager">Manager</option>
-                                <option value="Admin">Admin</option>
                             </select>
                         </div>
 
