@@ -42,7 +42,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         api.get("/api/v1/dashboard")
-            .then((res) => setInventoryStats(res.data))
+            .then((res) => setInventoryStats(res.data.data))
             .catch(console.error);
 
         const observer = new MutationObserver(() => {
@@ -62,23 +62,42 @@ const Dashboard = () => {
     const chartGridColor = darkMode ? "#aaa" : "#ccc";
 
     const barData = useMemo(() => {
-        if (!inventoryStats) return {};
+        const lowStockItems = inventoryStats?.lowStockItems ?? [];
+
+        if (!Array.isArray(lowStockItems) || lowStockItems.length === 0) {
+            return {
+                labels: [],
+                datasets: [],
+            };
+        }
+
+        const colors = ["#f39c12", "#e74c3c", "#1abc9c", "#8e44ad", "#3498db"];
+        const labels = lowStockItems.map(
+            (item, index) => item.itemName || item._id || `Item ${index + 1}`
+        );
+        const quantities = lowStockItems.map((item) => item.quantity || 0);
+        const backgroundColors = labels.map(
+            (_, index) => colors[index % colors.length]
+        );
+
         return {
-            labels: inventoryStats.lowStockItems.map((item) => item.name),
+            labels,
             datasets: [
                 {
-                    label: "Quantity",
-                    data: inventoryStats.lowStockItems.map(
-                        (item) => item.quantity
-                    ),
-                    backgroundColor: "#f39c12",
+                    label: "Low Stock Quantity",
+                    data: quantities,
+                    backgroundColor: backgroundColors,
+                    borderRadius: 6,
+                    barThickness: 40,
                 },
             ],
         };
     }, [inventoryStats]);
 
     const pieData = useMemo(() => {
-        if (!inventoryStats) return {};
+        if (!inventoryStats || !Array.isArray(inventoryStats.topSuppliers)) {
+            return { labels: [], datasets: [] };
+        }
         return {
             labels: inventoryStats.topSuppliers.map((s) => s.name),
             datasets: [
@@ -140,8 +159,12 @@ const Dashboard = () => {
         );
     }
 
-    const { totalItems, lowStockItems, recentOrders, topSuppliers } =
-        inventoryStats;
+    const {
+        totalItems,
+        lowStockItems = [],
+        recentOrders = [],
+        topSuppliers = [],
+    } = inventoryStats;
 
     return (
         <div className="container-db">
@@ -149,9 +172,9 @@ const Dashboard = () => {
                 className={`dashboard-container ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}
             >
                 <h2
-                    className={`mb-4 fw-bold ${darkMode ? "text-white" : "text-dark"} animate-in`}
+                    className={`mb-3 fw-bold ${darkMode ? "text-white" : "text-dark"} animate-in`}
                 >
-                    📊 Dashboard Overview
+                    Dashboard Overview
                 </h2>
 
                 <div className="row animate-in">
@@ -162,19 +185,24 @@ const Dashboard = () => {
                     />
                     <StatCard
                         title="Low Stock Items"
-                        value={lowStockItems.length}
+                        value={
+                            Array.isArray(lowStockItems)
+                                ? lowStockItems.length
+                                : 0
+                        }
                         bg="bg-warning"
                     />
                     <div className="col-md-4 mb-3">
                         <div className="card text-white bg-info h-100">
                             <div className="card-body">
-                                <h5 className="card-title">📝 Recent Orders</h5>
+                                <h5 className="card-title">Recent Orders</h5>
                                 {recentOrders.length > 0 ? (
                                     <ul className="list-group list-group-flush">
                                         {recentOrders.map((order, idx) => (
                                             <li
                                                 key={idx}
                                                 className="list-group-item"
+                                                style={{ color: "white" }}
                                             >
                                                 {order.name} - {order.quantity}
                                             </li>
@@ -192,7 +220,7 @@ const Dashboard = () => {
                     <h4
                         className={`fw-bold ${darkMode ? "text-white" : "text-dark"}`}
                     >
-                        🚚 Top Suppliers
+                        Top Suppliers
                     </h4>
                     {topSuppliers.length > 0 ? (
                         <ul className="list-group">
@@ -211,13 +239,23 @@ const Dashboard = () => {
                 <div className="row mt-5 animate-in">
                     <div className="col-lg-6 col-sm-12 mb-4">
                         <h5 className={darkMode ? "text-white" : "text-dark"}>
-                            📉 Low Stock Items
+                            Low Stock Items
                         </h5>
-                        <Bar data={barData} options={barOptions} />
+                        {barData.labels.length > 0 ? (
+                            <Bar data={barData} options={barOptions} />
+                        ) : (
+                            <p
+                                className={
+                                    darkMode ? "text-white" : "text-dark"
+                                }
+                            >
+                                No low stock item data available.
+                            </p>
+                        )}
                     </div>
                     <div className="col-lg-6 col-sm-12 mb-4">
                         <h5 className={darkMode ? "text-white" : "text-dark"}>
-                            🥧 Top Suppliers
+                            Top Suppliers
                         </h5>
                         <Pie data={pieData} options={pieOptions} />
                     </div>

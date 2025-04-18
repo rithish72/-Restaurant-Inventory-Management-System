@@ -26,6 +26,12 @@
 
 .list-group-item {
     font-size: 0.95rem;
+    background-color: transparent;
+    border: none;
+}
+
+.dark-mode .list-group-item{
+    color: white;
 }
 
 .dashboard-container ul {
@@ -60,7 +66,7 @@ canvas {
 }
 
 /* List items in dark mode */
-body.dark-mode .list-group-item {
+body.dark-mode {
     background-color: #1f1f1f;
     color: #f1f1f1;
     border-color: #333;

@@ -211,9 +211,15 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "User not authenticated");
     }
 
-    return res.status(200).json(
-        new ApiResponse(200, { user: req.user }, "Current user fetched successfully")
-    );    
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { user: req.user },
+                "Current user fetched successfully"
+            )
+        );
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -242,18 +248,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(200, user, "Account details updated successfully")
         );
-});
-
-const getAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find().select("-password -refreshToken");
-
-    if (!users || users.length === 0) {
-        throw new ApiError(404, "No users found");
-    }
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, users, "Fetched all users successfully"));
 });
 
 const deleteUser = asyncHandler(async (req, res) => {
@@ -292,6 +286,5 @@ export {
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
-    getAllUsers,
     deleteUser,
 };

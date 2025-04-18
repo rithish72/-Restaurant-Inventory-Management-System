@@ -29,6 +29,7 @@ import Login from "./pages/Login/Login.jsx";
 import Register from "./pages/Register/Register.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
 import ChangePassword from "./pages/ChangePassword/ChangePassword.jsx";
+import UserDetails from "./pages/UserDetails/UserDetails.jsx"
 
 // Components
 import Sidebar from "./components/Sidebar/Sidebar.jsx";
@@ -144,6 +145,10 @@ const App = () => {
                 <Route
                     path="/change-password"
                     element={<RouteWithLayout element={<ChangePassword />} />}
+                />
+                <Route
+                    path="/admin"
+                    element={<RouteWithLayout element={<UserDetails />} />}
                 />
             </Routes>
         </Router>

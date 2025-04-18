@@ -29,8 +29,6 @@ const Login = () => {
         return () => observer.disconnect();
     }, []);
 
-    // => Check the email and password format
-    // => Check whether password and confirmPassword are equal or not
     const validateForm = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         let emailError = "";

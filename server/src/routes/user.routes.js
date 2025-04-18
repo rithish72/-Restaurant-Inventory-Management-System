@@ -7,12 +7,10 @@ import {
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
-    getAllUsers,
     deleteUser,
 } from "../controllers/user.controller.js";
 
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
-import { authorizeRoles } from "../middlewares/role.middlewares.js";
 
 const router = express.Router();
 
@@ -26,9 +24,6 @@ router.get("/me", verifyJWT, getCurrentUser);
 router.post("/logout", verifyJWT, userLogout);
 router.post("/change-password", verifyJWT, changeCurrentPassword);
 router.put("/update-account", verifyJWT, updateAccountDetails);
-
-// Admin Routes
-router.get("/all", verifyJWT, authorizeRoles("Admin"), getAllUsers);
 router.delete("/delete-account/:id", verifyJWT, deleteUser);
 
 export default router;

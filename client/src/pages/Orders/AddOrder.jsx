@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Orders.css";
 import api from "../../api/api.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
@@ -9,15 +8,13 @@ const AddOrder = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [newOrder, setNewOrder] = useState({
         orderNumber: "",
-        items: "",
-        quantities: "",
+        items: [{ item: "", quantity: "" }],
         supplier: "",
         status: "",
         deliveryDate: "",
         notes: "",
     });
     const [loading, setLoading] = useState(false);
-
     const navigate = useNavigate();
     const orderNumberRef = useRef(null);
 
@@ -44,192 +41,223 @@ const AddOrder = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        setNewOrder((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleItemChange = (index, field, value) => {
+        const updatedItems = [...newOrder.items];
+        updatedItems[index][field] = value;
+        setNewOrder((prev) => ({ ...prev, items: updatedItems }));
+    };
+
+    const addItem = () => {
         setNewOrder((prev) => ({
             ...prev,
-            [name]: value,
+            items: [...prev.items, { item: "", quantity: "" }],
         }));
     };
 
+    const removeItem = (index) => {
+        const updatedItems = [...newOrder.items];
+        updatedItems.splice(index, 1);
+        setNewOrder((prev) => ({ ...prev, items: updatedItems }));
+    };
+
+    const validateForm = () => {
+        const { orderNumber, items, supplier, status, deliveryDate } = newOrder;
+        return (
+            orderNumber.trim() &&
+            supplier.trim() &&
+            status.trim() &&
+            deliveryDate &&
+            items.every((i) => i.item.trim() && i.quantity)
+        );
+    };
+
     const handleAddOrder = async () => {
-        const orderItems = newOrder.items
-            .split(",")
-            .map((item) => item.trim())
-            .filter((item) => item);
-
-        const quantities = newOrder.quantities
-            .split(",")
-            .map((quantity) => quantity.trim())
-            .filter((quantity) => quantity);
-
-        if (orderItems.length !== quantities.length) {
-            return toast.error("Items and quantities must match.");
-        }
-
-        const formattedItems = orderItems.map((item, index) => ({
-            item: item,
-            quantity: quantities[index],
-        }));
-
-        const trimmedOrder = {
-            orderNumber: newOrder.orderNumber.trim(),
-            items: formattedItems,
-            supplier: newOrder.supplier.trim(),
-            status: newOrder.status.trim(),
-            deliveryDate: newOrder.deliveryDate,
-        };
-
-        if (newOrder.notes.trim()) {
-            trimmedOrder.notes = newOrder.notes.trim();
-        }
-
-        const { orderNumber, items, supplier, status, deliveryDate } =
-            trimmedOrder;
-
-        if (
-            !orderNumber ||
-            !items.length ||
-            !supplier ||
-            !status ||
-            !deliveryDate
-        ) {
+        if (!validateForm()) {
             return toast.error("Please fill in all required fields.");
         }
 
+        const formattedOrder = {
+            orderNumber: newOrder.orderNumber.trim(),
+            items: newOrder.items.map((i) => ({
+                item: i.item.trim(),
+                quantity: Number(i.quantity),
+            })),
+            supplier: newOrder.supplier.trim(),
+            status: newOrder.status,
+            deliveryDate: newOrder.deliveryDate,
+            notes: newOrder.notes.trim(),
+        };
+
         setLoading(true);
         try {
-            await api.post("/api/v1/orders/add-order", trimmedOrder);
-
+            await api.post("/api/v1/orders/add-order", formattedOrder);
             toast.success("Order added successfully!");
-
-            setNewOrder({
-                orderNumber: "",
-                items: "",
-                quantities: "",
-                supplier: "",
-                status: "",
-                deliveryDate: "",
-                notes: "",
-            });
-
             navigate("/orders");
         } catch (error) {
             console.error("Error adding order:", error);
-            const errorMsg =
-                error.response?.data?.message ||
-                "Failed to add order. Please try again.";
-            toast.error(errorMsg);
+            toast.error("Failed to add order.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="dashboard-container mt-0">
+        <div className="container-db">
             <div
-                className={`dashboard-container ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}
+                className={`container-db ${darkMode ? "dark-bg-db" : "light-bg-db"} animate-in`}
             >
-                <h5 className="mb-3 fw-semibold animate-in">Add New Order</h5>
-                <div className="row g-3 animate-in">
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">
-                            Order Number
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="orderNumber"
-                            placeholder="e.g. ORD-1001"
-                            value={newOrder.orderNumber}
-                            onChange={handleInputChange}
-                            ref={orderNumberRef}
-                        />
+                <div className="dashboard-container mt-4 p-4">
+                    <h4
+                        className={`fw-bold text-center ${darkMode ? "text-white" : "text-dark"}`}
+                    >
+                        Add New Order
+                    </h4>
+
+                    <div className="row g-4">
+                        <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                                Order Number
+                            </label>
+                            <input
+                                type="text"
+                                name="orderNumber"
+                                className="form-control"
+                                placeholder="e.g. ORD-1001"
+                                value={newOrder.orderNumber}
+                                onChange={handleInputChange}
+                                ref={orderNumberRef}
+                            />
+                        </div>
+
+                        <div className="col-md-12">
+                            <label className="form-label fw-semibold">
+                                Items
+                            </label>
+                            {newOrder.items.map((itemObj, index) => (
+                                <div className="row g-2 mb-3" key={index}>
+                                    <div className="col-md-5">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Item name"
+                                            value={itemObj.item}
+                                            onChange={(e) =>
+                                                handleItemChange(
+                                                    index,
+                                                    "item",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                    <div className="col-md-5">
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            placeholder="Quantity"
+                                            value={itemObj.quantity}
+                                            onChange={(e) =>
+                                                handleItemChange(
+                                                    index,
+                                                    "quantity",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                    <div className="col-md-2">
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger w-100"
+                                            onClick={() => removeItem(index)}
+                                            disabled={
+                                                newOrder.items.length === 1
+                                            }
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                className="btn btn-outline-primary mt-2"
+                                onClick={addItem}
+                            >
+                                + Add Item
+                            </button>
+                        </div>
+
+                        <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                                Supplier
+                            </label>
+                            <input
+                                type="text"
+                                name="supplier"
+                                className="form-control"
+                                placeholder="e.g. FreshFarms"
+                                value={newOrder.supplier}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                                Status
+                            </label>
+                            <select
+                                name="status"
+                                className="form-select"
+                                value={newOrder.status}
+                                onChange={handleInputChange}
+                            >
+                                <option value="">Select Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
+                        <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                                Delivery Date
+                            </label>
+                            <input
+                                type="date"
+                                name="deliveryDate"
+                                className="form-control"
+                                value={newOrder.deliveryDate}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                                Notes (Optional)
+                            </label>
+                            <textarea
+                                name="notes"
+                                className="form-control"
+                                rows="1"
+                                placeholder="Additional notes"
+                                value={newOrder.notes}
+                                onChange={handleInputChange}
+                            />
+                        </div>
                     </div>
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">
-                            Items (comma separated)
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="items"
-                            placeholder="e.g. Tomato, Milk"
-                            value={newOrder.items}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">
-                            Quantities (comma separated)
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="quantities"
-                            placeholder="e.g. 10, 5"
-                            value={newOrder.quantities}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">
-                            Supplier
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="supplier"
-                            placeholder="e.g. FreshFarms"
-                            value={newOrder.supplier}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">Status</label>
-                        <select
-                            className="form-select"
-                            name="status"
-                            value={newOrder.status}
-                            onChange={handleInputChange}
-                        >
-                            <option value="">Select Status</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">
-                            Delivery Date
-                        </label>
-                        <input
-                            type="date"
-                            className="form-control"
-                            name="deliveryDate"
-                            value={newOrder.deliveryDate}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="col-md-4">
-                        <label className="form-label fw-semibold">
-                            Notes <span className="text-muted">(Optional)</span>
-                        </label>
-                        <textarea
-                            className="form-control"
-                            name="notes"
-                            rows="1"
-                            placeholder="Additional notes"
-                            value={newOrder.notes}
-                            onChange={handleInputChange}
-                        />
-                    </div>
+
+                    <button
+                        className="btn btn-success mt-4 w-100 fw-bold"
+                        onClick={handleAddOrder}
+                        disabled={loading}
+                    >
+                        {loading ? "Processing..." : "Add Order"}
+                    </button>
                 </div>
-                <button
-                    className="btn btn-success mt-4 w-100 fw-bold"
-                    onClick={handleAddOrder}
-                    disabled={loading}
-                >
-                    {loading ? "Adding..." : "Add Order"}
-                </button>
             </div>
         </div>
     );

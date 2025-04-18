@@ -10,7 +10,7 @@ const getDashboardStats = asyncHandler(async (_req, res) => {
     const totalItems = await Inventory.countDocuments();
 
     const lowStockItems = await Inventory.find({ quantity: { $lt: 10 } })
-        .select("name quantity")
+        .select("itemName quantity")
         .limit(10)
         .lean();
 

@@ -33,12 +33,14 @@ import inventoryRoute from "./routes/inventory.routes.js";
 import supplierRoute from "./routes/supplier.routes.js";
 import orderRoute from "./routes/order.routes.js";
 import dashboardRoute from "./routes/dashboard.routes.js";
+import adminRoute from "./routes/admin.route.js"
 // Routes
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/inventory", inventoryRoute);
 app.use("/api/v1/suppliers", supplierRoute);
 app.use("/api/v1/orders", orderRoute);
 app.use("/api/v1/dashboard", dashboardRoute);
+app.use("/api/v1/admin", adminRoute)
 
 // Default route
 app.get("/", (req, res) => {
