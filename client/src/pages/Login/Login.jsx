@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import "./Login.css";
 import { toast } from "react-toastify";
+import api from "../../api/api";
+import "./Login.css";
+import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import logo from "../../assets/logo.png";
 
 const Login = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [credentials, setCredentials] = useState({ email: "", password: "" });
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({
         email: "",
@@ -13,8 +17,8 @@ const Login = () => {
         server: "",
     });
     const navigate = useNavigate();
+    const emailRef = useRef(null);
 
-    // Detect dark mode
     useEffect(() => {
         const observer = new MutationObserver(() => {
             setDarkMode(document.body.classList.contains("dark-mode"));
@@ -29,17 +33,19 @@ const Login = () => {
         return () => observer.disconnect();
     }, []);
 
+    useEffect(() => {
+        emailRef.current?.focus();
+    }, []);
+
     const validateForm = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        let emailError = "";
-        let passwordError = "";
-
-        if (!emailRegex.test(credentials.email)) {
-            emailError = "Please enter a valid email address.";
-        }
-        if (credentials.password.length < 6) {
-            passwordError = "Password must be at least 6 characters.";
-        }
+        const emailError = !emailRegex.test(credentials.email)
+            ? "Please enter a valid email address."
+            : "";
+        const passwordError =
+            credentials.password.length < 6
+                ? "Password must be at least 6 characters."
+                : "";
 
         setErrors({ email: emailError, password: passwordError, server: "" });
         return !emailError && !passwordError;
@@ -47,64 +53,56 @@ const Login = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setCredentials({ ...credentials, [name]: value });
-
-        if (errors[name]) {
+        setCredentials((prev) => ({ ...prev, [name]: value }));
+        if (errors[name] || errors.server) {
             setErrors((prev) => ({ ...prev, [name]: "", server: "" }));
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
         setLoading(true);
         try {
-            const response = await fetch(
-                "http://localhost:5000/api/v1/users/login",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(credentials),
-                }
-            );
+            await api.post("/api/v1/users/login", credentials, {
+                withCredentials: true,
+            });
 
-            const data = await response.json();
-            setLoading(false);
-
-            if (response.ok) {
-                console.log("Logged in user:", data.user);
-                toast.success("Login successful!");
-                navigate("/home");
-            } else {
-                setErrors((prev) => ({
-                    ...prev,
-                    server: data.message || "Invalid credentials.",
-                }));
-            }
+            toast.success("Login successful!");
+            navigate("/home");
         } catch (error) {
+            const message =
+                error.response?.data?.message ||
+                "Something went wrong. Please try again.";
+            setErrors((prev) => ({ ...prev, server: message }));
+            toast.error(message);
+        } finally {
             setLoading(false);
-            console.error("Login Error:", error);
-            setErrors((prev) => ({
-                ...prev,
-                server: "Something went wrong. Please try again.",
-            }));
         }
     };
 
     return (
         <div>
+            {/* Navbar */}
             <nav
-                className="navbar navbar-expand-lg text-center navbar-login"
-                style={{ backgroundColor: "#fd7e14", color: "white"}}
+                className="navbar text-center navbar-login"
+                style={{ backgroundColor: "#fd7e14", color: "white", margin:"0px" }}
             >
-                <h5 className="text-center ms-4 fw-bold pt-1">
-                    Restaurant Inventory Management
-                </h5>
+                <div className="sidebar-logo">
+                    <img
+                        src={logo}
+                        alt="App Logo"
+                        style={{
+                            width: "100px",
+                            height: "40px",
+                            margin: "4px 30px",
+                        }}
+                    />
+                </div>
             </nav>
+
+            {/* Login Card */}
             <div className="login-page d-flex align-items-center justify-content-center">
                 <div
                     className={`card p-4 shadow-lg animate-in ${darkMode ? "dark-bg-login" : "light-bg-login"}`}
@@ -112,11 +110,13 @@ const Login = () => {
                     <h2 className="text-center mb-4 animate-in">
                         Welcome Back
                     </h2>
+
                     <form
                         className="animate-in"
                         onSubmit={handleSubmit}
                         noValidate
                     >
+                        {/* Email */}
                         <div className="mb-3">
                             <label
                                 htmlFor="email"
@@ -124,54 +124,117 @@ const Login = () => {
                             >
                                 Email
                             </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                                value={credentials.email}
-                                onChange={handleChange}
-                                placeholder="Enter your email"
-                                aria-invalid={!!errors.email}
-                                required
-                            />
+                            <div className="input-group">
+                                <span className="input-group-text">
+                                    <FiMail
+                                        className="icon"
+                                        style={{
+                                            height: "14px",
+                                            width: "14px",
+                                            backgroundColor: "transparent",
+                                        }}
+                                    />
+                                </span>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    ref={emailRef}
+                                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                                    value={credentials.email}
+                                    onChange={handleChange}
+                                    placeholder="Enter your email"
+                                    required
+                                />
+                            </div>
                             {errors.email && (
-                                <small className="text-danger">
+                                <div className="invalid-feedback d-block">
                                     {errors.email}
-                                </small>
+                                </div>
                             )}
                         </div>
 
-                        <div className="mb-3">
+                        {/* Password */}
+                        <div className="mb-1">
                             <label
                                 htmlFor="password"
                                 className="form-label fw-semibold"
                             >
                                 Password
                             </label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                className={`form-control ${errors.password || errors.server ? "is-invalid" : ""}`}
-                                value={credentials.password}
-                                onChange={handleChange}
-                                placeholder="Enter your password"
-                                aria-invalid={!!errors.password}
-                                required
-                            />
+                            <div className="input-group">
+                                <span className="input-group-text">
+                                    <FiLock
+                                        className="icon"
+                                        style={{
+                                            height: "14px",
+                                            width: "14px",
+                                            backgroundColor: "transparent",
+                                        }}
+                                    />
+                                </span>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    name="password"
+                                    className={`form-control ${errors.password || errors.server ? "is-invalid" : ""}`}
+                                    value={credentials.password}
+                                    onChange={handleChange}
+                                    placeholder="Enter your password"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? (
+                                        <FiEyeOff
+                                            style={{
+                                                height: "14px",
+                                                width: "14px",
+                                                backgroundColor: "transparent",
+                                                margin: "auto",
+                                            }}
+                                        />
+                                    ) : (
+                                        <FiEye
+                                            style={{
+                                                height: "14px",
+                                                width: "14px",
+                                                backgroundColor: "transparent",
+                                                margin: "auto",
+                                            }}
+                                        />
+                                    )}
+                                </button>
+                            </div>
                             {errors.password && (
-                                <small className="text-danger">
+                                <div className="invalid-feedback d-block">
                                     {errors.password}
-                                </small>
+                                </div>
                             )}
                             {errors.server && (
-                                <small className="text-danger">
+                                <div className="invalid-feedback d-block">
                                     {errors.server}
-                                </small>
+                                </div>
                             )}
                         </div>
 
+                        {/* Forgot Password */}
+                        <div className="mb-3 text-end">
+                            <NavLink
+                                to="/forgot-password"
+                                className="text-decoration-none small link-register"
+                            >
+                                Forgot Password?
+                            </NavLink>
+                        </div>
+
+                        {/* Submit Button */}
                         <button
                             type="submit"
                             className="btn w-100 fw-bold"
@@ -180,12 +243,12 @@ const Login = () => {
                                 color: "white",
                             }}
                             disabled={loading}
-                            aria-busy={loading}
                         >
                             {loading ? "Logging in..." : "Login"}
                         </button>
                     </form>
 
+                    {/* Register Link */}
                     <div className="text-center mt-3 animate-in">
                         <small>
                             Not registered?{" "}

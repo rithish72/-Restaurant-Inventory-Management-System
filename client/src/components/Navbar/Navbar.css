@@ -21,6 +21,10 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.dark-mode .text-light-nav{
+    color: white;
+}
+
 .dropdown-menu a {
     color: inherit;
     text-decoration: none;
@@ -30,6 +34,3 @@
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-.dark-mode .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}

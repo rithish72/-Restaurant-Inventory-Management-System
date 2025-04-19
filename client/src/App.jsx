@@ -27,6 +27,8 @@ import UpdateSupplier from "./pages/Suppliers/UpdateSupplier.jsx";
 
 import Login from "./pages/Login/Login.jsx";
 import Register from "./pages/Register/Register.jsx";
+import VerifyEmail from "./pages/VerifyEmail/VerifyEmail.jsx";
+import Forgot_Password from "./pages/ForgotPassword/ForgotPassword.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
 import ChangePassword from "./pages/ChangePassword/ChangePassword.jsx";
 import UserDetails from "./pages/UserDetails/UserDetails.jsx"
@@ -38,6 +40,7 @@ import Navbar from "./components/Navbar/Navbar.jsx";
 
 // Styles
 import "./App.css";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword.jsx";
 
 // Layout component for authenticated pages
 const MainLayout = ({ children }) => {
@@ -87,6 +90,8 @@ const App = () => {
 
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<Forgot_Password />} />
 
                 <Route
                     path="/dashboard"

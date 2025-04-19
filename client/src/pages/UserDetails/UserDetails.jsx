@@ -48,7 +48,7 @@ const UserDetails = () => {
         if (!confirmDelete) return;
 
         try {
-            await api.delete(`/api/v1/users/delete-account/${userId}`, {
+            await api.delete(`/api/v1/admin/delete-user/${userId}`, {
                 withCredentials: true,
             });
             toast.success("Account deleted successfully");

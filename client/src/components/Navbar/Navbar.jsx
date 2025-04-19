@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import "./Navbar.css";
 import { toast } from "react-toastify";
+import api from "../../api/api"; 
 
 const Navbar = () => {
     const [darkMode, setDarkMode] = useState(false);
     const navigate = useNavigate();
 
-    // Toggle Dark mode
+
     useEffect(() => {
         const observer = new MutationObserver(() => {
             setDarkMode(document.body.classList.contains("dark-mode"));
@@ -28,28 +29,15 @@ const Navbar = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch(
-                "http://localhost:5000/api/v1/users/logout",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                }
-            );
+            const res = await api.post("/api/v1/users/logout");
 
-            const data = await response.json();
-
-            if (response.ok) {
-                toast.success("Logout successful!");
-                navigate("/login");
-            } else {
-                toast.error(data.message || "Logout failed.");
-            }
+            toast.success(res.data?.message || "Logout successful!");
+            navigate("/login");
         } catch (error) {
-            console.error("Logout Error:", error);
-            toast.error("Something went wrong. Please try again.");
+            const msg =
+                error.response?.data?.message ||
+                "Something went wrong. Please try again.";
+            toast.error(msg);
         }
     };
 
@@ -69,11 +57,11 @@ const Navbar = () => {
                             className={`dropdown-menu-end ${darkMode ? "bg-dark text-light" : ""}`}
                         >
                             <Dropdown.Item as={Link} to="/profile">
-                                👤 View Profile
+                                View Profile
                             </Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.Item onClick={handleLogout}>
-                                🚪 Logout
+                                Logout
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>

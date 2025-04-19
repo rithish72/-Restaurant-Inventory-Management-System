@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
+import { Eye, EyeOff, User, Mail, Lock, Shield } from "lucide-react";
 import "./Register.css";
+import logo from '../../assets/logo.png'
 
 const Register = () => {
     const [darkMode, setDarkMode] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -61,6 +64,7 @@ const Register = () => {
             confirmPassword: confirmPasswordError,
             server: "",
         });
+
         return !emailError && !passwordError && !confirmPasswordError;
     };
 
@@ -68,99 +72,84 @@ const Register = () => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
 
-        // Clear individual error as user types
-        if (errors[name]) {
+        if (errors[name] || errors.server) {
             setErrors((prev) => ({ ...prev, [name]: "", server: "" }));
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-
         if (!validateForm()) return;
-
-        setLoading(true);
-
-        try {
-            const response = await fetch(
-                "http://localhost:5000/api/v1/users/register",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        name: formData.name.trim(),
-                        email: formData.email.trim(),
-                        password: formData.password.trim(),
-                        role: formData.role,
-                    }),
-                }
-            );
-
-            const data = await response.json();
-            setLoading(false);
-
-            if (response.ok) {
-                navigate("/login");
-            } else {
-                setErrors((prev) => ({
-                    ...prev,
-                    server: data.message || "Registration failed.",
-                }));
-            }
-        } catch (error) {
-            console.error("Registration Error:", error);
-            setLoading(false);
-            setErrors((prev) => ({
-                ...prev,
-                server: "Something went wrong. Please try again.",
-            }));
-        }
+        navigate("/verify-email", { state: { formData } });
     };
 
     return (
         <div>
             <nav
-                className="navbar navbar-expand-lg text-center"
-                style={{ backgroundColor: "#fd7e14", color: "white" }}
-            >
-                <h5 className="text-center ms-4 fw-bold pt-1">
-                    Restaurant Inventory Management
-                </h5>
-            </nav>
+                            className="navbar navbar-expand-lg text-center navbar-login"
+                            style={{ backgroundColor: "#fd7e14", color: "white" }}
+                        >
+                            <div className="sidebar-logo">
+                                <img
+                                    src={logo}
+                                    alt="App Logo"
+                                    style={{
+                                        width: "100px",
+                                        height: "40px",
+                                        margin: "4px 30px",
+                                    }}
+                                />
+                            </div>
+                        </nav>
+
             <div className="register-page d-flex align-items-center justify-content-center m-2">
                 <div
                     className={`card p-4 shadow-lg animate-in ${darkMode ? "dark-bg-register" : "light-bg-register"}`}
                 >
                     <h3 className="text-center mb-3">Create an Account</h3>
+
                     <form onSubmit={handleSubmit} noValidate>
                         <div className="d-flex gap-3">
-                            <div className="mb-3">
+                            <div className="mb-3 w-100">
                                 <label className="form-label">Full Name</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    name="name"
-                                    placeholder="Enter your full name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    required
-                                />
+                                <div className="input-group">
+                                    <span className="input-group-text">
+                                        <User className="icon" style={{
+                                            height: "14px",
+                                            width: "14px",
+                                        }} />
+                                    </span>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        name="name"
+                                        placeholder="Enter your full name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
                             </div>
 
-                            <div className="mb-2">
+                            <div className="mb-3 w-100">
                                 <label className="form-label">Email</label>
-                                <input
-                                    type="email"
-                                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                                    name="email"
-                                    placeholder="Enter your email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                />
+                                <div className="input-group">
+                                    <span className="input-group-text">
+                                        <Mail className="icon" style={{
+                                            height: "14px",
+                                            width: "14px",
+                                        }} />
+                                    </span>
+                                    <input
+                                        type="email"
+                                        className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                                        name="email"
+                                        placeholder="Enter your email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
                                 {errors.email && (
                                     <small className="text-danger">
                                         {errors.email}
@@ -169,17 +158,38 @@ const Register = () => {
                             </div>
                         </div>
 
-                        <div className="mb-2">
+                        <div className="mb-3">
                             <label className="form-label">Password</label>
-                            <input
-                                type="password"
-                                className={`form-control ${errors.password ? "is-invalid" : ""}`}
-                                name="password"
-                                placeholder="Create a password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                            />
+                            <div className="input-group">
+                                <span className="input-group-text">
+                                    <Lock className="icon" style={{
+                                            height: "14px",
+                                            width: "14px",
+                                        }} />
+                                </span>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                                    name="password"
+                                    placeholder="Create a password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    onClick={() =>
+                                        setShowPassword((prev) => !prev)
+                                    }
+                                >
+                                    {showPassword ? (
+                                        <EyeOff size={16} />
+                                    ) : (
+                                        <Eye size={16} />
+                                    )}
+                                </button>
+                            </div>
                             {errors.password && (
                                 <small className="text-danger">
                                     {errors.password}
@@ -187,19 +197,44 @@ const Register = () => {
                             )}
                         </div>
 
-                        <div className="mb-2">
+                        <div className="mb-3">
                             <label className="form-label">
                                 Confirm Password
                             </label>
-                            <input
-                                type="password"
-                                className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
-                                name="confirmPassword"
-                                placeholder="Repeat your password"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                            />
+                            <div className="input-group">
+                                <span className="input-group-text">
+                                    <Lock className="icon" style={{
+                                            height: "14px",
+                                            width: "14px",
+                                        }} />
+                                </span>
+                                <input
+                                    type={
+                                        showConfirmPassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+                                    name="confirmPassword"
+                                    placeholder="Repeat your password"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    onClick={() =>
+                                        setShowConfirmPassword((prev) => !prev)
+                                    }
+                                >
+                                    {showConfirmPassword ? (
+                                        <EyeOff size={16} />
+                                    ) : (
+                                        <Eye size={16} />
+                                    )}
+                                </button>
+                            </div>
                             {errors.confirmPassword && (
                                 <small className="text-danger">
                                     {errors.confirmPassword}
@@ -207,19 +242,21 @@ const Register = () => {
                             )}
                         </div>
 
-                        <div className="mb-2">
+                        <div className="mb-3">
                             <label className="form-label">Select Role</label>
-                            <select
-                                className="form-control"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                required
-                            >
-                                <option value="">Select One</option>
-                                <option value="Staff">Staff</option>
-                                <option value="Manager">Manager</option>
-                            </select>
+                            <div className="input-group">
+                                <select
+                                    className="form-control"
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Select One</option>
+                                    <option value="Staff">Staff</option>
+                                    <option value="Manager">Manager</option>
+                                </select>
+                            </div>
                         </div>
 
                         {errors.server && (
@@ -231,9 +268,8 @@ const Register = () => {
                         <button
                             type="submit"
                             className="btn btn-register w-100"
-                            disabled={loading}
                         >
-                            {loading ? "Registering..." : "Register"}
+                            Register
                         </button>
                     </form>
 

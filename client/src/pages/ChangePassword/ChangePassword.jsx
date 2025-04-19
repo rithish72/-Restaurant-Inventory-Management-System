@@ -131,7 +131,7 @@ const ChangePassword = () => {
         <div className="container-db pb-3">
             <div
                 className={`dashboard-container mx-auto animate-in ${darkMode ? "dark-bg-db" : "light-bg-db"}`}
-                style={{ maxWidth: "1000px" }}
+                style={{ maxWidth: "800px" }}
             >
                 <h2
                     className={`text-center fw-bold mb-4 ${darkMode ? "text-white" : "text-dark"}`}

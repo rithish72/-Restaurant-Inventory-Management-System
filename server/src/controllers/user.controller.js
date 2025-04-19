@@ -278,6 +278,46 @@ const deleteUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "User deleted successfully"));
 });
 
+const isUserExist = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        throw new ApiError(400, "Email is required");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { userId: user._id }, "User exists"));
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+        throw new ApiError(400, "Email and new password are required");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    user.password = newPassword;
+
+    await user.save({ validateBeforeSave: false });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Password reset successful"));
+});
+
 export {
     userLogin,
     userRegister,
@@ -287,4 +327,6 @@ export {
     getCurrentUser,
     updateAccountDetails,
     deleteUser,
+    isUserExist,
+    resetPassword,
 };

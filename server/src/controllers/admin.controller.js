@@ -2,6 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.models.js";
+import mongoose from "mongoose";
 
 const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select("-password -refreshToken");
@@ -48,7 +49,28 @@ const changeRole = asyncHandler(async (req, res) => {
         )
 })
 
+const deleteUserByAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    console.log(`Attempting to delete user with ID: ${id}`);
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid or missing user ID");
+    }
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+        throw new ApiError(404, "User not found or already deleted");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "User deleted successfully"));
+});
+
 export {
     getAllUsers,
-    changeRole
+    changeRole,
+    deleteUserByAdmin
 }

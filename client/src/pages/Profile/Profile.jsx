@@ -2,6 +2,16 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import { toast } from "react-toastify";
+import {
+    FaUser,
+    FaEnvelope,
+    FaUserShield,
+    FaEdit,
+    FaSave,
+    FaTimes,
+    FaTrash,
+    FaKey,
+} from "react-icons/fa";
 
 const Profile = () => {
     const [darkMode, setDarkMode] = useState(false);
@@ -97,19 +107,19 @@ const Profile = () => {
             "Are you sure you want to delete your account?"
         );
         if (!confirmDelete) return;
-    
+
         try {
             await api.delete(`/api/v1/users/delete-account/${user._id}`, {
                 withCredentials: true,
             });
             toast.success("Account deleted successfully");
-            navigate("/")
+            navigate("/");
         } catch (err) {
             console.error(err);
             toast.error("Failed to delete account");
         }
     };
-    
+
     if (loading) {
         return (
             <div className="text-center pt-5">
@@ -140,20 +150,24 @@ const Profile = () => {
         <div className="container-db pb-3">
             <div
                 className={`dashboard-container mx-auto animate-in ${darkMode ? "dark-bg-db" : "light-bg-db"}`}
-                style={{ maxWidth: "1000px" }}
+                style={{ maxWidth: "800px" }}
             >
                 <h2
                     className={`text-center fw-bold mb-4 ${darkMode ? "text-white" : "text-dark"}`}
                 >
-                    👤 Profile Details
+                    Profile Details
                 </h2>
 
                 <div className="animate-in">
                     {/* Name */}
-                    <div className="mb-4">
+                    <div className="mb-3">
                         <label
                             className={`form-label ${darkMode ? "text-white" : "text-dark"}`}
                         >
+                            <FaUser
+                                className="me-2"
+                                style={{ height: "14px", width: "14px" }}
+                            />
                             Name
                         </label>
                         {editMode ? (
@@ -174,10 +188,14 @@ const Profile = () => {
                     </div>
 
                     {/* Email */}
-                    <div className="mb-4">
+                    <div className="mb-3">
                         <label
                             className={`form-label ${darkMode ? "text-white" : "text-dark"}`}
                         >
+                            <FaEnvelope
+                                className="me-2"
+                                style={{ height: "14px", width: "14px" }}
+                            />
                             Email
                         </label>
                         {editMode ? (
@@ -198,10 +216,11 @@ const Profile = () => {
                     </div>
 
                     {/* Role */}
-                    <div className="mb-4">
+                    <div className="mb-3">
                         <label
                             className={`form-label ${darkMode ? "text-white" : "text-dark"}`}
                         >
+                            <FaUserShield className="me-2" style={{ height: "14px", width: "14px" }}/>
                             Role
                         </label>
                         <div
@@ -220,13 +239,14 @@ const Profile = () => {
                                     onClick={handleUpdate}
                                     disabled={isUpdating}
                                 >
-                                    {isUpdating ? "Saving..." : "💾 Save"}
+                                    <FaSave className="me-2" style={{ height: "14px", width: "14px" }}/>{isUpdating ? "Saving..." : "Save"}
                                 </button>
                                 <button
                                     className="btn btn-secondary w-50"
                                     onClick={handleEditToggle}
                                 >
-                                    ❌ Cancel
+                                    <FaTimes className="me-2" style={{ height: "14px", width: "14px" }}/>
+                                    Cancel
                                 </button>
                             </>
                         ) : (
@@ -234,7 +254,8 @@ const Profile = () => {
                                 className="btn btn-primary w-100"
                                 onClick={handleEditToggle}
                             >
-                                ✏️ Edit Profile
+                                <FaEdit className="me-2" style={{ height: "14px", width: "14px" }}/>
+                                Edit Profile
                             </button>
                         )}
                     </div>
@@ -245,14 +266,16 @@ const Profile = () => {
                     <div className="text-end animate-in">
                         <NavLink to="/change-password">
                             <button className="btn btn-warning me-2">
-                                🔒 Change Password
+                                <FaKey className="me-2" style={{ height: "14px", width: "14px" }}/>
+                                Change Password
                             </button>
                         </NavLink>
                         <button
                             className="btn btn-danger"
                             onClick={handleDelete}
                         >
-                            🗑️ Delete Account
+                            <FaTrash className="me-2" style={{ height: "14px", width: "14px" }}/>
+                            Delete Account
                         </button>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import api from "../../api/api.js";
+import logo from "../../assets/logo.png";
 import "./Sidebar.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -8,15 +9,16 @@ const Sidebar = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [role, setRole] = useState(null);
 
+    //Toggle Dark Mode
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
         document.body.classList.toggle("dark-mode");
     };
 
+    // For Admin Panel
     useEffect(() => {
         const fetchRole = async () => {
             try {
-                console.log("hi");
                 const res = await api.get("/api/v1/admin/me");
                 setRole(res.data.role);
             } catch (err) {
@@ -40,9 +42,13 @@ const Sidebar = () => {
             }}
         >
             {/* Logo */}
-            <h4 className="mb-4 fw-bold text-center animate-sidebar">
-                Restaurant Inventory
-            </h4>
+            <div className="sidebar-logo">
+                <img
+                    src={logo}
+                    alt="App Logo"
+                    style={{ width: "150px", height: "80px", margin: "0px" }}
+                />
+            </div>
 
             <ul className="nav nav-pills flex-column mb-auto">
                 <li className="nav-item">
@@ -92,7 +98,7 @@ const Sidebar = () => {
                             to="/admin"
                         >
                             <i className="bi bi-person-gear me-1"></i>
-                                Admin Panel
+                            Admin Panel
                         </NavLink>
                     </li>
                 )}
