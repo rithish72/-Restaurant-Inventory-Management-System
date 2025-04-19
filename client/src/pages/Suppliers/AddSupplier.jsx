@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Suppliers.css";
 import api from "../../api/api.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";

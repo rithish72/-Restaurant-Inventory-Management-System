@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./Suppliers.css";
 import { toast } from "react-toastify";
 
 const UpdateSupplier = () => {
