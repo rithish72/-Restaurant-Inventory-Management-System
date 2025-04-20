@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { ApiResponse } from "../utils/ApiResponse";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const otpStore = {};
 
