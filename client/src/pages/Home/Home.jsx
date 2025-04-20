@@ -28,7 +28,7 @@ const Home = () => {
                 <h2
                     className={`mb-4 fw-bold text-center ${darkMode ? "text-white" : "text-dark"} animate-in`}
                 >
-                    🍽️ Welcome to Restaurant Inventory Manager
+                    Welcome to Restaurant Inventory Manager
                 </h2>
                 <p
                     className={`lead text-center mb-5 ${darkMode ? "text-white" : "text-dark"} animate-in`}

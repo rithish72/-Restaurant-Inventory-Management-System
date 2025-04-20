@@ -70,7 +70,7 @@ const getAllOrders = asyncHandler(async (_req, res) => {
             _id,
             quantity,
             item: {
-                itemName: item?.itemName,  // return itemName instead of _id
+                itemName: item?.itemName,
                 unit: item?.unit,
             },
         })),
